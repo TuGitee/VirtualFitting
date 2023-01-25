@@ -4,9 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "client":"npm run start --prefix ../",
-    "server":"node server.js",
-    "dev":"concurrently \"npm run server\" \"npm run client\""
+    "server":"node server.js"
   },
   "author": "tut",
   "license": "ISC",
