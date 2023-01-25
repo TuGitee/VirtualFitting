@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
+    "build": "concurrently \"vue-cli-service build\" \"npm run server --prefix node\" ",
     "lint": "vue-cli-service lint",
     "dev": "concurrently \"npm run serve\" \"npm run server --prefix node\" "
   },
