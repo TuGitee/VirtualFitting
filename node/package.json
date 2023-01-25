@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "client":"npm run start --prefix ../",
-    "server":"nodemon server.js",
+    "server":"node server.js",
     "dev":"concurrently \"npm run server\" \"npm run client\""
   },
   "author": "tut",
