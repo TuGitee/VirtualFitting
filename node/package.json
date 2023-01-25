@@ -1,0 +1,16 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "client":"npm run start --prefix ../",
+    "server":"nodemon server.js",
+    "dev":"concurrently \"npm run server\" \"npm run client\""
+  },
+  "author": "tut",
+  "license": "ISC",
+  "dependencies": {
+    "concurrently": "^7.6.0"
+  }
+}

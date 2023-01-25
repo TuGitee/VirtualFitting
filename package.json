@@ -5,10 +5,12 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "start": "npm run serve"
   },
   "dependencies": {
     "axios": "^0.27.2",
+    "concurrently": "^7.6.0",
     "core-js": "^3.8.3",
     "element-ui": "^2.15.12",
     "express": "^4.18.2",
