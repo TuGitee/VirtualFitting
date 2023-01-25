@@ -4,10 +4,12 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
 const multer = require('multer')
-const upload = multer({ dest: 'public/uploads/' })
+const upload = multer({ dest: '/' })
 
-
-const port = 3000;
+const port = 4000;
+app.get('/',(req,res)=>{
+  res.send("hello world")
+})
 /**
  * 
  * @api {get} /api/list
@@ -113,3 +115,5 @@ app.post('/upload', upload.fields(["personImage", "clothesImage", "backgroundIma
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
 });
+
+module.exports = app;

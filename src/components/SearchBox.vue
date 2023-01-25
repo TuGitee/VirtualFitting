@@ -71,7 +71,7 @@ export default {
       };
     },
     loadAll() {
-      this.$axios.get("http://localhost:3000/list").then((res) => {
+      this.$axios.get("https://backend-zeta-fawn.vercel.app/list").then((res) => {
         this.list = res.data;
       });
     },
