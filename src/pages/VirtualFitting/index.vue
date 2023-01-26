@@ -130,7 +130,7 @@ export default {
       formData.append("clothesImage", clothesImage);
       formData.append("backgroundImage", backgroundImage);
       await this.$axios
-        .post("https://backend-zeta-fawn.vercel.app/upload", formData, {
+        .post("http://localhost:34000/upload", formData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -208,7 +208,7 @@ export default {
       this.isSearching = true;
       await this.$axios
         .get(
-          `https://backend-zeta-fawn.vercel.app/background?keyword=${item.tags.join(
+          `http://localhost:34000/background?keyword=${item.tags.join(
             "-"
           )}`,
           { timeout: 5000 }
@@ -227,7 +227,7 @@ export default {
   },
   created() {
     this.$axios
-      .get("https://backend-zeta-fawn.vercel.app/background")
+      .get("http://localhost:34000/background")
       .then((res) => {
         this.backgroundList = res.data;
       });
