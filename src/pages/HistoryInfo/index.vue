@@ -1,5 +1,5 @@
 <template>
-  <el-main>
+  <el-main class="main">
     <el-result
       icon="warning"
       title="提示"
@@ -61,25 +61,25 @@ export default {
 </script>
 
 <style lang="less" scoped>
-/deep/ .el-image {
-  height: 30vh;
-  min-height: 150px;
-}
-/deep/ .el-collapse-item {
-  height: fit-content;
-  &__image {
-    height: 100%;
+  /deep/ .el-image {
+    height: 30vh;
+    min-height: 150px;
   }
-  &__header {
-    text-align: left;
-    position: relative;
-    &-title {
-      width: 150px;
+  /deep/ .el-collapse-item {
+    height: fit-content;
+    &__image {
+      height: 100%;
     }
-    .el-button.el-button--danger {
-      position: absolute;
-      right: 40px;
+    &__header {
+      text-align: left;
+      position: relative;
+      &-title {
+        width: 150px;
+      }
+      .el-button.el-button--danger {
+        position: absolute;
+        right: 40px;
+      }
     }
   }
-}
 </style>

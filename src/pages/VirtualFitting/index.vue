@@ -1,5 +1,5 @@
 <template>
-  <el-main class="virtual-fitting">
+  <el-main class="virtual-fitting main">
     <div class="virtual-fitting-left">
       <UploadPhoto
         v-for="(type, index) in types"
@@ -208,7 +208,9 @@ export default {
       this.isSearching = true;
       await this.$axios
         .get(
-          `https://backend-zeta-fawn.vercel.app/background?keyword=${item.tags.join("-")}`,
+          `https://backend-zeta-fawn.vercel.app/background?keyword=${item.tags.join(
+            "-"
+          )}`,
           { timeout: 5000 }
         )
         .then((res) => {
@@ -224,9 +226,11 @@ export default {
     });
   },
   created() {
-    this.$axios.get("https://backend-zeta-fawn.vercel.app/background").then((res) => {
-      this.backgroundList = res.data;
-    });
+    this.$axios
+      .get("https://backend-zeta-fawn.vercel.app/background")
+      .then((res) => {
+        this.backgroundList = res.data;
+      });
   },
 };
 </script>

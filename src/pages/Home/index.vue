@@ -1,5 +1,5 @@
 <template>
-  <el-main>
+  <el-main class="main">
     Home...
     正在开发中...
   </el-main>

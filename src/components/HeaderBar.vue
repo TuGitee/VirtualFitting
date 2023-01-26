@@ -27,8 +27,9 @@ export default {
 .header {
   color: #333;
   text-align: center;
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
   z-index: 1000;
   background-color: #fff;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);

@@ -42,6 +42,11 @@ export default {
       border-radius: 10px;
     }
   }
+
+  .main {
+    position: relative;
+    top: 60px;
+  }
 }
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
