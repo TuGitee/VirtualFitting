@@ -4,11 +4,11 @@ module.exports = defineConfig({
   lintOnSave: false,
   devServer: {
     proxy: {
-      '/backend': {
-        target: 'http://localhost:5000',
+      '/api': {
+        target: 'http://42.192.154.61:39999/hooks/deploy',
         changeOrigin: true,
         pathRewrite: {
-          '^/backend': ''
+          '^/api': ''
         }
       }
     }

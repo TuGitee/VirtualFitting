@@ -11,7 +11,10 @@ Vue.prototype.$message = Message
 import router from '@/router'
 
 import axios from 'axios'
-Vue.prototype.$axios = axios
+Vue.prototype.$axios = axios.create({
+  baseURL: '/api',
+  timeout: 5000
+})
 
 import VueAwesomeSwiper from 'vue-awesome-swiper'
 import 'swiper/dist/css/swiper.css'
