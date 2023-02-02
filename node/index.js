@@ -7,7 +7,7 @@ const multer = require('multer')
 const upload = multer({ dest: '/' })
 
 const port = 34000;
-app.get('/',(req,res)=>{
+app.get('/api',(req,res)=>{
   res.send("hello world")
 })
 /**
@@ -36,7 +36,7 @@ app.get('/',(req,res)=>{
  * }
  * 
  */
-app.get('/list', (req, res) => {
+app.get('/api/list', (req, res) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.send([
     { value: "海边沙滩", tags: ['海边', '沙滩', '阳光'] },
@@ -56,7 +56,7 @@ app.get('/list', (req, res) => {
     { value: "日落山川", tags: ['山川', '日落'] },
   ])
 })
-app.get('/background', (req, res) => {
+app.get('/api/background', (req, res) => {
   res.header("Access-Control-Allow-Origin", "*")
   const dataList = [
     {
@@ -104,7 +104,7 @@ app.get('/background', (req, res) => {
     return reg.test(item.tags.join(''))
   }))
 })
-app.post('/upload', upload.fields(["personImage", "clothesImage", "backgroundImage"]), (req, res) => {
+app.post('/api/upload', upload.fields(["personImage", "clothesImage", "backgroundImage"]), (req, res) => {
   res.header('Access-Control-Allow-Origin', '*');
   const { personImage, clothesImage, backgroundImage } = req.body
   console.log({ personImage, clothesImage, backgroundImage })
