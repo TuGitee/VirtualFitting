@@ -18,7 +18,11 @@
       v-else
       :src="url"
     />
-    <div class="image-method-box__actions" :class="{ hover: !disabled && url }">
+    <div
+      class="image-method-box__actions"
+      :class="{ hover: !disabled && url }"
+      v-if="!disabled && url"
+    >
       <span
         class="image-method-box__actions-preview"
         @click="handlePictureCardPreview()"
@@ -59,11 +63,13 @@ export default {
     handleRemove: {
       type: Function,
       default: () => {
-        vm.$confirm("该操作不可逆，请谨慎选择！", "删除图片提示").then(() => {
-          vm.url = "";
-        }).catch((err)=>{
-          console.log(err)
-        });
+        vm.$confirm("该操作不可逆，请谨慎选择！", "删除图片提示")
+          .then(() => {
+            vm.url = "";
+          })
+          .catch((err) => {
+            console.log(err);
+          });
       },
     },
   },
@@ -133,7 +139,7 @@ export default {
     &-download {
       margin-right: 20px;
     }
-    & span:last-child{
+    & span:last-child {
       margin-right: 0;
     }
   }

@@ -116,11 +116,10 @@ export default {
           xhr.send();
           xhr.onload = async (e) => {
             if (xhr.status == 200) {
-              await this.$bus.$emit(
-                "uploadPhoto",
-                this.type,
-                URL.createObjectURL(xhr.response)
-              );
+              await this.$bus.$emit("uploadPhoto", this.type, {
+                url: URL.createObjectURL(xhr.response),
+                filename: +new Date()
+              });
               this.isloading = false;
             }
           };

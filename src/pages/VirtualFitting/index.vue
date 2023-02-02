@@ -78,9 +78,9 @@ export default {
     return {
       types: ["person", "clothes"],
       backgroundList: [],
-      personImage: "",
-      clothesImage: "",
-      backgroundImage: "",
+      person: {},
+      clothes: {},
+      background: {},
       createImage: "",
       isloading: false,
       isSearching: false,
@@ -112,23 +112,23 @@ export default {
       return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
     },
     async submitUpload() {
-      const { personImage, clothesImage, backgroundImage } = this;
-      if (!personImage) {
+      const { person, clothes, background } = this;
+      if (!person) {
         this.$message.error("请上传人物图片");
         return;
-      } else if (!clothesImage) {
+      } else if (!clothes) {
         this.$message.error("请上传衣服图片");
         return;
-      } else if (!backgroundImage) {
+      } else if (!background) {
         this.$message.error("请选择背景图片");
         return;
       }
       if (this.isPay) this.dialogVisible = true;
       this.isloading = true;
       const formData = new FormData();
-      formData.append("personImage", personImage);
-      formData.append("clothesImage", clothesImage);
-      formData.append("backgroundImage", backgroundImage);
+      formData.append("personImage", person.url, person.filename);
+      formData.append("clothesImage", clothes.url, clothes.filename);
+      formData.append("backgroundImage", background.url, background.filename);
       await this.$axios
         .post("/upload", formData, {
           headers: {
@@ -200,19 +200,14 @@ export default {
     },
   },
   mounted() {
-    this.$bus.$on("uploadPhoto", (type, url) => {
+    this.$bus.$on("uploadPhoto", (type, obj) => {
       if (!type) return;
-      this[type + "Image"] = url;
+      this[type] = obj;
     });
     this.$bus.$on("searchBackground", async (item) => {
       this.isSearching = true;
       await this.$axios
-        .get(
-          `/background?keyword=${item.tags.join(
-            "-"
-          )}`,
-          { timeout: 5000 }
-        )
+        .get(`/background?keyword=${item.tags.join("-")}`, { timeout: 5000 })
         .then((res) => {
           this.backgroundList = res.data;
         })
@@ -226,11 +221,9 @@ export default {
     });
   },
   created() {
-    this.$axios
-      .get("/background")
-      .then((res) => {
-        this.backgroundList = res.data;
-      });
+    this.$axios.get("/background").then((res) => {
+      this.backgroundList = res.data;
+    });
   },
 };
 </script>

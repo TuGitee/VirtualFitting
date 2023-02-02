@@ -105,11 +105,10 @@ export default {
     },
     handleChange() {
       if (this.$refs.upload.uploadFiles.length > 0) {
-        this.$bus.$emit(
-          "uploadPhoto",
-          this.type,
-          this.$refs.upload.uploadFiles[0].url
-        );
+        this.$bus.$emit("uploadPhoto", this.type, {
+          url: this.$refs.upload.uploadFiles[0].url,
+          filename: +new Date()
+        });
         this.isUpload = true;
       } else {
         this.isUpload = false;
@@ -132,13 +131,13 @@ export default {
       this.isUpload = false;
       this.$refs.upload.$refs["upload-inner"].handleClick();
     },
-    toBase64(file){
-      let reader = new FileReader()
-      reader.onload=(e)=>{
-        return e.target.result
-      }
-      reader.readAsDataURL(file)
-    }
+    toBase64(file) {
+      let reader = new FileReader();
+      reader.onload = (e) => {
+        return e.target.result;
+      };
+      reader.readAsDataURL(file);
+    },
   },
 };
 </script>
@@ -206,7 +205,7 @@ export default {
       }
     }
   }
-  /deep/ .el-upload__tip{
+  /deep/ .el-upload__tip {
     margin-bottom: 20px;
   }
 }
