@@ -101,7 +101,23 @@ export default {
     leave() {
       if (this.isAbleMove) this.swiper.autoplay.start();
     },
-    focus(e, that) {
+    h5BlobUrlToBlobObj(url) {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', url, true);
+      xhr.responseType = 'blob';
+      xhr.onload = function onload(e) {
+        if (this.status === 200) {
+          const Blob = this.response;
+          resolve(Blob);
+        } else {
+          reject(this.status, e);
+        }
+      };
+      xhr.send();
+    })
+    },
+    async focus(e, that) {
       let clickedIndex = that.clickedIndex;
       if (clickedIndex === undefined) return;
       if (vm.focusIndex !== clickedIndex) {
@@ -117,7 +133,7 @@ export default {
           xhr.onload = async (e) => {
             if (xhr.status == 200) {
               await this.$bus.$emit("uploadPhoto", this.type, {
-                url: URL.createObjectURL(xhr.response),
+                url: await this.h5BlobUrlToBlobObj(URL.createObjectURL(xhr.response)),
                 filename: +new Date()
               });
               this.isloading = false;

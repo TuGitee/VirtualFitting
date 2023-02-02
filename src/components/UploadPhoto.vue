@@ -103,11 +103,11 @@ export default {
       a.download = file.name;
       a.click();
     },
-    handleChange() {
+    async handleChange() {
       if (this.$refs.upload.uploadFiles.length > 0) {
         this.$bus.$emit("uploadPhoto", this.type, {
-          url: this.$refs.upload.uploadFiles[0].url,
-          filename: +new Date()
+          url: await this.h5BlobUrlToBlobObj(this.$refs.upload.uploadFiles[0].url),
+          filename: +new Date(),
         });
         this.isUpload = true;
       } else {
@@ -137,6 +137,22 @@ export default {
         return e.target.result;
       };
       reader.readAsDataURL(file);
+    },
+    h5BlobUrlToBlobObj(url) {
+      return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open("GET", url, true);
+        xhr.responseType = "blob";
+        xhr.onload = function onload(e) {
+          if (this.status === 200) {
+            const Blob = this.response;
+            resolve(Blob);
+          } else {
+            reject(this.status, e);
+          }
+        };
+        xhr.send();
+      });
     },
   },
 };

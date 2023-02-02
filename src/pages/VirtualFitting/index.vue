@@ -129,6 +129,9 @@ export default {
       formData.append("personImage", person.url, person.filename);
       formData.append("clothesImage", clothes.url, clothes.filename);
       formData.append("backgroundImage", background.url, background.filename);
+      // for(let [a,b] of formData.entries()){
+      //   console.log(a,b)
+      // }
       await this.$axios
         .post("/upload", formData, {
           headers: {
