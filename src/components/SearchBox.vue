@@ -23,6 +23,7 @@
 </template>
 
 <script>
+import { invoke } from '@tauri-apps/api/tauri'
 export default {
   data() {
     return {
@@ -71,8 +72,8 @@ export default {
       };
     },
     loadAll() {
-      this.$axios.get("/list").then((res) => {
-        this.list = res.data;
+      invoke("list").then((res) => {
+        this.list = JSON.parse(res);
       });
     },
     handleSelect(item) {

@@ -73,6 +73,7 @@ import UploadPhoto from "@/components/UploadPhoto.vue";
 import SearchBox from "@/components/SearchBox.vue";
 import Carousel from "@/components/Carousel.vue";
 import ImageWithMethod from "@/components/ImageWithMethod.vue";
+import { invoke } from '@tauri-apps/api/tauri'
 export default {
   data() {
     return {
@@ -132,18 +133,12 @@ export default {
       // for(let [a,b] of formData.entries()){
       //   console.log(a,b)
       // }
-      await this.$axios
-        .post("/upload", formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-          timeout: 3000,
-        })
+      await invoke("upload", { data: formData })
         .then((res) => {
           const canvas = document.createElement("canvas");
           const ctx = canvas.getContext("2d");
           const img = new Image();
-          img.src = res.data.url;
+          img.src = JSON.parse(res).url;
           const percentage = 2;
           img.onload = () => {
             canvas.width = img.width / percentage;
@@ -193,6 +188,7 @@ export default {
           };
           this.$message.success("上传成功");
         })
+        // eslint-disable-next-line no-unused-vars
         .catch((err) => {
           this.createImage = "";
           this.$message.error("上传失败");
@@ -209,10 +205,9 @@ export default {
     });
     this.$bus.$on("searchBackground", async (item) => {
       this.isSearching = true;
-      await this.$axios
-        .get(`/background?keyword=${item.tags.join("-")}`, { timeout: 5000 })
+      await invoke('background', { keywords: item.tags.join("-") })
         .then((res) => {
-          this.backgroundList = res.data;
+          this.backgroundList = JSON.parse(res);
         })
         .catch((error) => {
           if (error.message.includes("timeout"))
@@ -224,8 +219,8 @@ export default {
     });
   },
   created() {
-    this.$axios.get("/background").then((res) => {
-      this.backgroundList = res.data;
+    invoke("background", { keywords: "" }).then((res) => {
+      this.backgroundList = JSON.parse(res);
     });
   },
 };

@@ -3,12 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
+    "serve": "vue-cli-service serve --port 28080",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "dev": "concurrently \"npm run serve\" \"npm run server --prefix node\" "
+    "dev": "pnpm run serve"
   },
   "dependencies": {
+    "@tauri-apps/api": "^1.2.0",
     "axios": "^0.27.2",
     "concurrently": "^7.6.0",
     "core-js": "^3.8.3",
