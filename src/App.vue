@@ -1,6 +1,6 @@
 <template>
   <el-container id="app" direction="vertical">
-    <HeaderBar />
+    <HeaderBar v-if="$router.currentRoute.meta.isShow" />
     <router-view />
   </el-container>
 </template>

@@ -5,11 +5,11 @@
 </template>
 
 <script>
+let timer = null;
 export default {
   name: "VideoFitting",
   data() {
     return {
-      timer: null,
     };
   },
   mounted() {
@@ -42,20 +42,22 @@ export default {
     //成功回调
     function success(stream) {
       video.srcObject = stream;
-      video.play();
-      this.timer = setInterval(() => {
-        // 图像按照比例缩放，不要变形
-        let scale = Math.max(
-          canvas.width / video.videoWidth,
-          canvas.height / video.videoHeight
-        );
-        let width = video.videoWidth * scale;
-        let height = video.videoHeight * scale;
-        // 计算图片绘制到画布上的位置
-        let x = (canvas.width - width) / 2;
-        let y = (canvas.height - height) / 2;
-        ctx.drawImage(video, x, y, width, height);
-      }, 1000 / 60);
+      video.onloadedmetadata = function (e) {
+        video.play();
+        timer = setInterval(() => {
+          // 图像按照比例缩放，不要变形
+          let scale = Math.max(
+            canvas.width / video.videoWidth,
+            canvas.height / video.videoHeight
+          );
+          let width = video.videoWidth * scale;
+          let height = video.videoHeight * scale;
+          // 计算图片绘制到画布上的位置
+          let x = (canvas.width - width) / 2;
+          let y = (canvas.height - height) / 2;
+          ctx.drawImage(video, x, y, width, height);
+        }, 1000 / 60);
+      };
     }
     //失败回调
     function error(error) {
@@ -74,8 +76,7 @@ export default {
     }
   },
   beforeDestroy() {
-    clearInterval(this.timer);
-    this.timer = null;
+    clearInterval(timer);
   },
 };
 </script>
@@ -96,5 +97,6 @@ export default {
     background-color: #fff5;
     transform: rotateY(180deg);
   }
+
 }
 </style>
