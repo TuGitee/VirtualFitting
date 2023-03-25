@@ -1,6 +1,6 @@
 <template>
   <div class="upload-demo">
-    <el-badge :value="files.length" :hidden="files.length < 2" class="item">
+    <el-badge :value="files.length" :hidden="(files.length < 2)" class="item">
       <el-upload
         action="#"
         list-type="picture-card"
@@ -12,11 +12,11 @@
         :on-success="handleSuccess"
         :on-error="handleError"
         :class="{ isShow: isUpload }"
-        :multiple="type === 'clothes' ? true : false"
+        :multiple="multiple"
       >
         <div class="el-upload__text">
           上传{{ typeName[type] }}<br />
-          {{ type === "clothes" ? "(允许上传多张)" : "(仅允许单张)" }}
+          {{ multiple ? "(允许上传多张)" : "(仅允许单张)" }}
         </div>
 
         <div slot="file" slot-scope="{ file }">
@@ -74,16 +74,16 @@
           <el-image :src="item" fit="contain"></el-image>
         </el-carousel-item>
       </el-carousel>
-      <el-image
+      <ImageWithMethod
         v-if="dialogImageUrl.length === 1"
         :src="dialogImageUrl[0]"
-        fit="contain"
-      ></el-image>
+      />
     </el-dialog>
   </div>
 </template>
 
 <script>
+import ImageWithMethod from '@/components/ImageWithMethod';
 export default {
   data() {
     return {
@@ -102,6 +102,13 @@ export default {
     type: {
       type: String,
     },
+    multiple: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  components: {
+    ImageWithMethod,
   },
   methods: {
     handleRemove(file) {

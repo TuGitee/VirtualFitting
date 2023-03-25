@@ -13,6 +13,7 @@
         v-for="(type, index) in Object.keys(filelist)"
         :type="type"
         :key="index"
+        :multiple="type === 'clothes'"
         class="virtual-fitting-photo-upload"
       />
     </div>
@@ -21,15 +22,6 @@
       <div class="virtual-fitting-upload-progress"></div>
     </div>
 
-    <!-- <div class="virtual-fitting-right">
-      <div class="virtual-fitting-right-top">
-        <ImageWithMethod
-          v-loading="isloading"
-          class="virtual-fitting-right-top-image"
-          :url="createImage"
-        />
-      </div>
-    </div> -->
   </el-main>
 </template>
 
@@ -51,9 +43,6 @@ export default {
       createImage: "",
       isloading: false,
       isSearching: false,
-      // isSave: true,
-      // isPay: true,
-      // isChange: true,
       list: [
         {
           url: "1.jpg",

@@ -5,45 +5,48 @@
     @mouseleave="handleHover"
   >
     <el-image
-      class="image-method-box__image"
+      class="image-method-box__image default"
       src="/logo.png"
       alt=""
       fit="contain"
-      v-if="!url"
+      v-if="!url && !src"
     />
     <el-image
-      class="image-method-box__image"
+      class="image-method-box__image normal"
       alt=""
       fit="contain"
       v-else
-      :src="require('@/assets/' + url)"
+      :src="url ? require('@/assets/' + url) : src"
     />
     <div
       class="image-method-box__actions"
-      :class="{ hover: !disabled && url }"
-      v-if="!disabled && url"
+      :class="{ hover: !disabled && (url || src) }"
+      v-if="!disabled && (url || src)"
     >
       <span
         class="image-method-box__actions-preview"
         @click="handlePictureCardPreview()"
+        v-if="url"
       >
         <i class="el-icon-zoom-in"></i>
       </span>
       <span
         class="image-method-box__actions-download"
         @click="handleDownload()"
+        v-if="src || url"
       >
         <i class="el-icon-download"></i>
       </span>
       <span
         class="image-method-box__actions-delete"
         @click="handleRemove(index)"
+        v-if="url"
       >
         <i class="el-icon-delete"></i>
       </span>
     </div>
     <el-dialog :visible.sync="dialogVisible">
-      <img width="100%" :src="require('@/assets/' + url)" alt="" />
+      <img width="100%" :src="url ? require('@/assets/' + url) : src" alt="" />
     </el-dialog>
   </div>
 </template>
@@ -59,6 +62,10 @@ export default {
     },
     index: {
       type: Number,
+    },
+    src: {
+      type: String,
+      default: "",
     },
     handleRemove: {
       type: Function,
@@ -86,9 +93,11 @@ export default {
       this.dialogVisible = true;
     },
     handleDownload() {
-      if (!this.url) return;
+      if (!this.url && !this.src) return;
       let a = document.createElement("a");
-      a.href = this.url;
+      // this.url是文件路径，src是文件的base64编码，a.href是url文件的下载地址
+      a.href = this.url ? require("@/assets/" + this.url) : this.src;
+      a.download = this.url? require("@/assets/" + this.url): this.src.split("/").pop();
       a.click();
     },
     handleHover() {
@@ -104,8 +113,6 @@ export default {
 <style lang="less" scoped>
 .image-method-box {
   position: relative;
-  width: 100%;
-  height: 100%;
   border-radius: 10px;
   overflow: hidden;
   display: flex;

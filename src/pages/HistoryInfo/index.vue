@@ -132,10 +132,10 @@ export default {
     },
     async focus(e, that) {
       let clickedIndex = that.clickedIndex;
-      if(!that.clickedSlide) return;
+      if (!that.clickedSlide) return;
       if (clickedIndex === undefined) return;
       this.activeIndex = that.clickedSlide?.getAttribute("data-value");
-      
+
       if (vm.focusIndex !== clickedIndex) {
         vm.focusIndex = clickedIndex;
         vm.isAbleMove = false;
@@ -172,6 +172,10 @@ export default {
           height: 100%;
           border: none;
         }
+        /deep/ .el-input-group__append {
+          background-color: #fff9;
+          border: none;
+        }
       }
       /deep/ .el-collapse-item__arrow {
         display: none;
@@ -185,6 +189,8 @@ export default {
     transform: translateY(50%);
     background-color: #fff5;
     border-radius: 20px;
+    position: relative;
+    overflow: hidden;
     /deep/ .el-result__title p {
       color: white;
     }
@@ -194,6 +200,29 @@ export default {
     /deep/ .el-result__extra button {
       background-color: #efb6ff;
       border: none;
+    }
+    &:hover {
+      box-shadow: 0px 0px 30px -10px #0003;
+      &::after {
+        left: 150%;
+      }
+    }
+    &::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -50%;
+      width: 200px;
+      transform: skew(-20deg);
+      height: 100%;
+      background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.5) 50%,
+        rgba(255, 255, 255, 0) 100%
+      );
+      z-index: 1;
+      transition: all 0.7s;
     }
   }
   /deep/ .el-collapse {
