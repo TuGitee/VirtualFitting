@@ -104,7 +104,8 @@ app.get('/api/background', (req, res) => {
     return reg.test(item.tags.join(''))
   }))
 })
-app.post('/api/upload', upload.fields(["personImage", "clothesImage", "backgroundImage"]), (req, res) => {
+app.post('/api/upload',upload.fields(["personImage","clothesIamge","backgroundImage"]) ,(req, res) => {
+  console.log(req.body)
   res.header('Access-Control-Allow-Origin', '*');
   const { personImage, clothesImage, backgroundImage } = req.body
   console.log({ personImage, clothesImage, backgroundImage })

@@ -1,70 +1,35 @@
 <template>
   <el-main class="virtual-fitting main">
-    <div class="virtual-fitting-left">
+    <Carousel
+      :list="list"
+      class="virtual-fitting-carousel"
+      type="background"
+      v-loading="isSearching"
+      element-loading-text="处理中..."
+    />
+
+    <div class="virtual-fitting-photo">
       <UploadPhoto
-        v-for="(type, index) in types"
+        v-for="(type, index) in Object.keys(filelist)"
         :type="type"
         :key="index"
-        class="virtual-fitting-left-upload"
+        class="virtual-fitting-photo-upload"
       />
-      <el-button @click="submitUpload" type="danger">上传到服务器</el-button>
     </div>
-    <div class="virtual-fitting-right">
+
+    <div class="virtual-fitting-upload">
+      <div class="virtual-fitting-upload-progress"></div>
+    </div>
+
+    <!-- <div class="virtual-fitting-right">
       <div class="virtual-fitting-right-top">
-        <div class="virtual-fitting-right-top-choices">
-          <el-switch v-model="isSave" active-text="保存至历史记录"> </el-switch>
-          <el-switch v-model="isPay" active-text="每次上传展示赞赏码">
-          </el-switch>
-          <el-switch v-model="isChange" active-text="历史记录自动替换">
-          </el-switch>
-          <el-button @click="dialogVisible = true">赞赏码</el-button>
-        </div>
         <ImageWithMethod
           v-loading="isloading"
           class="virtual-fitting-right-top-image"
           :url="createImage"
         />
       </div>
-      <div class="virtual-fitting-right-background">
-        <SearchBox class="virtual-fitting-right-background-search" />
-        <Carousel
-          :list="backgroundList"
-          class="virtual-fitting-right-background-carousel"
-          type="background"
-          v-loading="isSearching"
-          element-loading-text="处理中..."
-          v-if="backgroundList.length"
-        />
-      </div>
-    </div>
-    <el-dialog
-      title="赞赏码"
-      :visible.sync="dialogVisible"
-      width="25%"
-      center
-      class="virtual-fitting-pay"
-    >
-      <el-tabs
-        v-model="activeItem"
-        type="card"
-        @tab-click="handleClick"
-        stretch
-      >
-        <el-tab-pane label="支付宝" name="Alipay">
-          <el-image :src="require('./images/Alipay.png')" draggable="false"
-            ><div slot="error" class="image-slot">
-              <i class="el-icon-picture-outline"></i></div
-          ></el-image>
-        </el-tab-pane>
-        <el-tab-pane label="微信" name="WeChat Pay">
-          <el-image :src="require('./images/WeChatPay.png')" draggable="false"
-            ><div slot="error" class="image-slot">
-              <i class="el-icon-picture-outline"></i></div
-          ></el-image>
-        </el-tab-pane>
-      </el-tabs>
-      <p class="virtual-fitting-pay-title">您的赞赏是对我们最大的支持！</p>
-    </el-dialog>
+    </div> -->
   </el-main>
 </template>
 
@@ -73,22 +38,60 @@ import UploadPhoto from "@/components/UploadPhoto.vue";
 import SearchBox from "@/components/SearchBox.vue";
 import Carousel from "@/components/Carousel.vue";
 import ImageWithMethod from "@/components/ImageWithMethod.vue";
+import { invoke } from "@tauri-apps/api/tauri";
+import axios from "axios";
 export default {
   data() {
     return {
-      types: ["person", "clothes"],
       backgroundList: [],
-      person: {},
-      clothes: {},
-      background: {},
+      filelist: {
+        person: {},
+        clothes: [],
+      },
       createImage: "",
       isloading: false,
       isSearching: false,
-      dialogVisible: false,
-      activeItem: "Alipay",
-      isSave: true,
-      isPay: true,
-      isChange: true,
+      // isSave: true,
+      // isPay: true,
+      // isChange: true,
+      list: [
+        {
+          url: "1.jpg",
+          tags: ["海边", "山川"],
+        },
+        {
+          url: "2.jpg",
+          tags: ["海边", "礁石", "蓝天"],
+        },
+        {
+          url: "3.jpg",
+          tags: ["蓝天", "街道", "现代"],
+        },
+        {
+          url: "4.jpg",
+          tags: ["日落", "大海", "夕阳"],
+        },
+        {
+          url: "5.jpg",
+          tags: ["蓝天", "白云", "马路"],
+        },
+        {
+          url: "6.jpg",
+          tags: ["蓝天", "现代", "车"],
+        },
+        {
+          url: "7.jpg",
+          tags: ["石头", "山川"],
+        },
+        {
+          url: "8.jpg",
+          tags: ["富士山", "花朵", "纯色"],
+        },
+        {
+          url: "9.jpg",
+          tags: ["船舶", "阳光", "海边"],
+        },
+      ],
     };
   },
   components: {
@@ -112,38 +115,41 @@ export default {
       return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
     },
     async submitUpload() {
-      const { person, clothes, background } = this;
-      if (!person) {
-        this.$message.error("请上传人物图片");
+      const { filelist } = this;
+      console.log(filelist);
+      if (!filelist.person.file) {
+        this.$message.error("请上传人物图片（仅允许一张）");
         return;
-      } else if (!clothes) {
-        this.$message.error("请上传衣服图片");
-        return;
-      } else if (!background) {
-        this.$message.error("请选择背景图片");
+      } else if (!filelist.clothes.length) {
+        this.$message.error("请上传至少一张衣服图片");
         return;
       }
       if (this.isPay) this.dialogVisible = true;
       this.isloading = true;
       const formData = new FormData();
-      formData.append("personImage", person.url, person.filename);
-      formData.append("clothesImage", clothes.url, clothes.filename);
-      formData.append("backgroundImage", background.url, background.filename);
-      // for(let [a,b] of formData.entries()){
-      //   console.log(a,b)
-      // }
-      await this.$axios
+      formData.append(
+        "personImage",
+        filelist.person.file,
+        filelist.person.name
+      );
+      filelist.clothes.forEach((item) => {
+        formData.append("clothesImage", item.file, item.name);
+      });
+      // 打印formData
+      for (let [key, value] of formData.entries()) {
+        console.log(key, value);
+      }
+      await axios
         .post("/upload", formData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
-          timeout: 3000,
         })
         .then((res) => {
           const canvas = document.createElement("canvas");
           const ctx = canvas.getContext("2d");
           const img = new Image();
-          img.src = res.data.url;
+          img.src = JSON.parse(res).url;
           const percentage = 2;
           img.onload = () => {
             canvas.width = img.width / percentage;
@@ -193,6 +199,7 @@ export default {
           };
           this.$message.success("上传成功");
         })
+        // eslint-disable-next-line no-unused-vars
         .catch((err) => {
           this.createImage = "";
           this.$message.error("上传失败");
@@ -205,28 +212,36 @@ export default {
   mounted() {
     this.$bus.$on("uploadPhoto", (type, obj) => {
       if (!type) return;
-      this[type] = obj;
+      if (type === "person") this.filelist.person = obj[0];
+      else this.filelist[type] = obj;
+      console.log(this.filelist);
     });
-    this.$bus.$on("searchBackground", async (item) => {
-      this.isSearching = true;
-      await this.$axios
-        .get(`/background?keyword=${item.tags.join("-")}`, { timeout: 5000 })
-        .then((res) => {
-          this.backgroundList = res.data;
-        })
-        .catch((error) => {
-          if (error.message.includes("timeout"))
-            this.$message.error("网络较差，搜索超时！");
-          else if (error.message === "Network Error")
-            this.$message.error("网络断线！");
+    window.addEventListener("keyup", (e) => {
+      if (e.key === "Enter") {
+        this.$confirm("确定上传图片吗？").then(() => {
+          this.submitUpload();
         });
-      this.isSearching = false;
+      }
     });
+    // this.$bus.$on("searchBackground", async (item) => {
+    //   this.isSearching = true;
+    //   await invoke("background", { keywords: item.tags.join("-") })
+    //     .then((res) => {
+    //       this.backgroundList = JSON.parse(res);
+    //     })
+    //     .catch((error) => {
+    //       if (error.message.includes("timeout"))
+    //         this.$message.error("网络较差，搜索超时！");
+    //       else if (error.message === "Network Error")
+    //         this.$message.error("网络断线！");
+    //     });
+    //   this.isSearching = false;
+    // });
   },
   created() {
-    this.$axios.get("/background").then((res) => {
-      this.backgroundList = res.data;
-    });
+    // invoke("background", { keywords: "" }).then((res) => {
+    //   this.backgroundList = JSON.parse(res);
+    // });
   },
 };
 </script>
@@ -236,76 +251,54 @@ export default {
   max-height: 100%;
   min-height: calc(100vh - 76px);
   padding-top: 0;
-  margin-bottom: 10px;
   display: flex;
+  flex-direction: column;
   overflow: unset;
 
-  &-left {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-evenly;
-    align-items: center;
-    &-upload {
-      border-bottom: 1px solid #ccc;
-    }
-    .el-button {
-      margin-top: 10px;
-    }
+  &-carousel {
+    margin-top: 20px;
   }
-  &-right {
-    margin-left: 20px;
-    flex: 1;
+
+  &-photo {
     display: flex;
-    flex-direction: column;
-    justify-content: space-evenly;
+    justify-content: space-between;
     align-items: center;
-    &-top {
-      flex: 1;
-      width: 100%;
+    margin-top: 20px;
+  }
+
+  &-upload {
+    width: 100%;
+    margin-top: 20px;
+    height: 26px;
+    line-height: 26px;
+    border: none;
+    background-color: white;
+    border-radius: 20px;
+    font-weight: 700;
+    color: #e4b0f4;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0 20px -10px #e4b0f4;
+    &::after {
+      content: "按回车键上传到服务器";
+    }
+    &-progress {
+      position: absolute;
+      top: 0;
+      left: -2px;
+      width: 200px;
       height: 100%;
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-evenly;
-      margin: 20px auto 0px;
-      &-choices {
-        width: 200px;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-evenly;
-      }
-      &-image {
-        height: 100%;
-        max-width: 500px;
-        max-height: 280px;
-      }
-    }
-
-    &-background {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-evenly;
-      width: 100%;
-      margin: 20px;
-      &-carousel {
-        display: flex;
-        justify-content: space-evenly;
-        flex-direction: column;
-        align-items: center;
-      }
-    }
-  }
-
-  &-pay {
-    user-select: none;
-    &-title {
-      margin-top: 10px;
-      text-align: center;
-    }
-    /deep/ .el-dialog {
-      min-width: 350px;
+      background: linear-gradient(
+        90deg,
+        #1e9dbdcc,
+        #173e96cc,
+        #4a249bcc,
+        #6d3f9bcc
+      );
+      border-radius: 20px;
+      transition: all 0.3s;
     }
   }
 }

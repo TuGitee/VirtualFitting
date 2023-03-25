@@ -16,7 +16,7 @@
       alt=""
       fit="contain"
       v-else
-      :src="url"
+      :src="require('@/assets/' + url)"
     />
     <div
       class="image-method-box__actions"
@@ -43,7 +43,7 @@
       </span>
     </div>
     <el-dialog :visible.sync="dialogVisible">
-      <img width="100%" :src="dialogImageUrl" alt="" />
+      <img width="100%" :src="require('@/assets/' + url)" alt="" />
     </el-dialog>
   </div>
 </template>
@@ -111,9 +111,14 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+  transition: all 0.5s;
   &__image {
     height: 100%;
     width: 100%;
+    /deep/ .el-image__error,
+    .el-image__placeholder {
+      background-color: transparent;
+    }
   }
   &__actions {
     position: absolute;
@@ -126,9 +131,8 @@ export default {
     height: 100%;
     width: 100%;
     opacity: 0;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.3);
     color: #fff;
-    transition: all 0.3s;
     font-size: 20px;
     &-preview {
       margin-right: 20px;

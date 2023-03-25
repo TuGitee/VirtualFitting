@@ -9,17 +9,6 @@
       >
         <img :src="require('@/assets/images/background/' + item.url)" />
       </swiper-slide>
-      <!-- 如果需要导航按钮 -->
-      <div
-        class="swiper-button-prev"
-        slot="button-prev"
-        v-show="list.length > 1"
-      ></div>
-      <div
-        class="swiper-button-next"
-        slot="button-next"
-        v-show="list.length > 1"
-      ></div>
     </swiper>
     <swiper
       class="swiper gallery-thumbs"
@@ -48,6 +37,7 @@ export default {
       focusIndex: -1,
       isAbleMove: true,
       isloading: false,
+      navShow: false,
       options: {
         slidesPerView: 2,
         grabCursor: true,
@@ -58,10 +48,6 @@ export default {
         autoplay: {
           delay: 3000,
           disableOnInteraction: false,
-        },
-        navigation: {
-          nextEl: ".swiper-button-next",
-          prevEl: ".swiper-button-prev",
         },
         on: {
           slideChange() {},
@@ -97,60 +83,53 @@ export default {
   methods: {
     enter() {
       if (this.isAbleMove) this.swiper.autoplay.stop();
+      this.navShow = true;
     },
     leave() {
       if (this.isAbleMove) this.swiper.autoplay.start();
+      this.navShow = false;
     },
-    h5BlobUrlToBlobObj(url) {
-    return new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      xhr.open('GET', url, true);
-      xhr.responseType = 'blob';
-      xhr.onload = function onload(e) {
-        if (this.status === 200) {
-          const Blob = this.response;
-          resolve(Blob);
-        } else {
-          reject(this.status, e);
-        }
-      };
-      xhr.send();
-    })
-    },
+    // h5BlobUrlToBlobObj(url) {
+    //   return new Promise((resolve, reject) => {
+    //     const xhr = new XMLHttpRequest();
+    //     xhr.open("GET", url, true);
+    //     xhr.responseType = "blob";
+    //     xhr.onload = function onload(e) {
+    //       if (this.status === 200) {
+    //         const Blob = this.response;
+    //         resolve(Blob);
+    //       } else {
+    //         reject(this.status, e);
+    //       }
+    //     };
+    //     xhr.send();
+    //   });
+    // },
     async focus(e, that) {
       let clickedIndex = that.clickedIndex;
       if (clickedIndex === undefined) return;
       if (vm.focusIndex !== clickedIndex) {
-        let image = new Image();
-        image.src = e.target.currentSrc;
-        if (!image.src) return;
-        this.isloading = true;
-        image.onload = () => {
-          const xhr = new XMLHttpRequest();
-          xhr.open("GET", image.src, true);
-          xhr.responseType = "blob";
-          xhr.send();
-          xhr.onload = async (e) => {
-            if (xhr.status == 200) {
-              await this.$bus.$emit("uploadPhoto", this.type, {
-                url: await this.h5BlobUrlToBlobObj(URL.createObjectURL(xhr.response)),
-                filename: +new Date()
-              });
-              this.isloading = false;
-            }
-          };
-          // const percentage = 2;
-          // const canvas = document.createElement("canvas");
-          // const ctx = canvas.getContext("2d");
-          // canvas.height = image.height / percentage;
-          // canvas.width = image.width / percentage;
-          // ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-          // const base64 = canvas.toDataURL("image/png");
-          // let arr = base64.split(','),mime=arr[0].match(/:(.*?);/)[1],bstr=atob(arr[1]),n=bstr.length,u8arr=new Uint8Array(n)
-          // while(n--) u8arr[n]=bstr.charCodeAt(n)
-          // let blob = new Blob([u8arr],{type:mime})
-          // this.$bus.$emit("uploadPhoto", this.type, base64);
-        };
+        // let image = new Image();
+        // image.src = e.target.currentSrc;
+        // if (!image.src) return;
+        // this.isloading = true;
+        // image.onload = () => {
+        //   const xhr = new XMLHttpRequest();
+        //   xhr.open("GET", image.src, true);
+        //   xhr.responseType = "blob";
+        //   xhr.send();
+        //   xhr.onload = async (e) => {
+        //     if (xhr.status == 200) {
+        //       await this.$bus.$emit("uploadPhoto", this.type, {
+        //         url: await this.h5BlobUrlToBlobObj(
+        //           URL.createObjectURL(xhr.response)
+        //         ),
+        //         filename: +new Date(),
+        //       });
+        //       this.isloading = false;
+        //     }
+        //   };
+        // };
         vm.focusIndex = clickedIndex;
         vm.isAbleMove = false;
         vm.swiper.autoplay.stop();
@@ -182,15 +161,18 @@ export default {
 </script>
 
 <style lang="less" scoped>
-@theme-color: #fff;
+@theme-color: linear-gradient(45deg, #1c1f3e, #2a37cc);
 #root {
-  border: 2px dashed #2d8cf0;
-  border-radius: 4px;
-  padding: 10px;
+  border-radius: 20px;
+  // background: url("@/assets/bg.png") no-repeat center center;
+  background-color: #fff5;
+  box-shadow: 0 0 20px -10px #1c1f3e;
+  padding: 10px 0;
+  img {
+    border-radius: 10px;
+  }
   .swiper {
-    height: 220px;
-    max-width: 700px;
-    background-color: @theme-color;
+    height: 280px;
     &-slide {
       width: 100%;
       height: 100%;
@@ -212,7 +194,7 @@ export default {
     }
     &.gallery-thumbs {
       margin-top: 10px;
-      height: 60px;
+      height: 80px;
       .swiper-slide {
         width: 16%;
         height: 100%;
@@ -228,11 +210,6 @@ export default {
         }
       }
     }
-  }
-  .focus {
-    padding: 10px;
-    border: 2px dashed orange;
-    border-radius: 10px;
   }
 }
 </style>

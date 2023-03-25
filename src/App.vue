@@ -32,20 +32,37 @@ export default {
   }
 
   ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 4px;
+    height: 4px;
     &-track {
-      background-color: #eee;
+      background-color: transparent;
     }
     &-thumb {
-      background-color: #ccc;
+      background-color: #EFB6FF;
       border-radius: 10px;
     }
   }
 
   .main {
     position: relative;
-    top: 60px;
+    left: 220px;
+    width: calc(100% - 220px);
+    height: 100%;
+    overflow: overlay;
+    &::after {
+      content: "";
+      height: 100vh;
+      width: 100vw;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: -99999;
+      // background: linear-gradient(45deg, #dbb3f2, #7657d2);
+      background: url("@/assets/photo.png") no-repeat center center;
+      background-size: cover;
+      filter: blur(1rem);
+      transform: scale(1.05);
+    }
   }
 }
 #app {
