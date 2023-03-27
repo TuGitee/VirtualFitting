@@ -8,45 +8,46 @@
       class="image-method-box__image default"
       src="/logo.png"
       alt=""
-      fit="contain"
-      v-if="!url && !src"
+      :fit="fit"
+      v-if="!url"
     />
     <el-image
       class="image-method-box__image normal"
       alt=""
-      fit="contain"
+      :fit="fit"
       v-else
-      :src="url ? require('@/assets/' + url) : src"
+      :src="url"
     />
+
     <div
       class="image-method-box__actions"
-      :class="{ hover: !disabled && (url || src) }"
-      v-if="!disabled && (url || src)"
+      :class="{ hover: !disabled && url }"
+      v-if="!disabled && url"
     >
       <span
         class="image-method-box__actions-preview"
         @click="handlePictureCardPreview()"
-        v-if="url"
+        v-if="url && options.isPreview"
       >
         <i class="el-icon-zoom-in"></i>
       </span>
       <span
         class="image-method-box__actions-download"
         @click="handleDownload()"
-        v-if="src || url"
+        v-if="url && options.isDownload"
       >
         <i class="el-icon-download"></i>
       </span>
       <span
         class="image-method-box__actions-delete"
         @click="handleRemove(index)"
-        v-if="url"
+        v-if="url && options.isDelete"
       >
         <i class="el-icon-delete"></i>
       </span>
     </div>
     <el-dialog :visible.sync="dialogVisible">
-      <img width="100%" :src="url ? require('@/assets/' + url) : src" alt="" />
+      <img width="100%" :src="url" alt="" />
     </el-dialog>
   </div>
 </template>
@@ -56,16 +57,26 @@ let vm = null;
 export default {
   name: "ImageWithMethod",
   props: {
-    url: {
-      type: String,
-      default: "",
-    },
     index: {
       type: Number,
     },
     src: {
       type: String,
       default: "",
+    },
+    options: {
+      type: Object,
+      default: () => {
+        return {
+          isPreview: true,
+          isDownload: true,
+          isDelete: true,
+        };
+      },
+    },
+    fit: {
+      type: String,
+      default: "cover",
     },
     handleRemove: {
       type: Function,
@@ -87,6 +98,18 @@ export default {
       dialogVisible: false,
     };
   },
+  computed: {
+    url() {
+      if (!this.src) return null;
+      else if (this.src.includes("base64")) {
+        return URL.createObjectURL(this.dataURLtoBlob(this.src));
+      } else if (this.src.includes("http")) {
+        return this.src;
+      } else {
+        return require("@/assets/" + this.src);
+      }
+    },
+  },
   methods: {
     handlePictureCardPreview() {
       this.dialogImageUrl = this.url;
@@ -95,13 +118,23 @@ export default {
     handleDownload() {
       if (!this.url && !this.src) return;
       let a = document.createElement("a");
-      // this.url是文件路径，src是文件的base64编码，a.href是url文件的下载地址
-      a.href = this.url ? require("@/assets/" + this.url) : this.src;
-      a.download = this.url? require("@/assets/" + this.url): this.src.split("/").pop();
+      a.href = this.url;
+      a.download = +new Date() + "_图片.jpg";
       a.click();
     },
     handleHover() {
       this.disabled = !this.disabled;
+    },
+    dataURLtoBlob(dataurl) {
+      let arr = dataurl.split(","),
+        mime = arr[0].match(/:(.*?);/)[1],
+        bstr = atob(arr[1]),
+        n = bstr.length,
+        u8arr = new Uint8Array(n);
+      while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+      }
+      return new Blob([u8arr], { type: mime });
     },
   },
   created() {

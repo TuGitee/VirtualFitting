@@ -7,7 +7,7 @@
         :key="index"
         :class="{ focus: focusIndex === index }"
       >
-        <img :src="require('@/assets/images/background/' + item.url)" />
+        <img :src="require('@/assets/' + item.url)" />
       </swiper-slide>
     </swiper>
     <swiper
@@ -21,7 +21,7 @@
         :key="index"
         :class="{ focus: focusIndex === index }"
       >
-        <img :src="require('@/assets/images/background/' + item.url)" />
+        <img :src="require('@/assets/' + item.url)" />
       </swiper-slide>
     </swiper>
   </div>
@@ -150,13 +150,7 @@ export default {
   },
   created() {
     vm = this;
-  },
-  beforeUpdate() {
-    this.swiper.params.loopedSlide = this.list.length === 1 ? 1 : 2;
-    this.swiperThumbs.params.loopedSlide = Math.min(this.list.length, 6);
-    this.swiper.params.slidesPerView = this.list.length === 1 ? 1 : 2;
-    this.swiperThumbs.params.slidesPerView = Math.min(this.list.length, 6);
-  },
+  }
 };
 </script>
 
@@ -164,18 +158,17 @@ export default {
 @theme-color: linear-gradient(45deg, #1c1f3e, #2a37cc);
 #root {
   border-radius: 20px;
-  // background: url("@/assets/bg.png") no-repeat center center;
   background-color: #fff5;
   box-shadow: 0 0 20px -10px #1c1f3e;
-  padding: 10px 0;
+  padding: 1% 0;
   img {
     border-radius: 10px;
   }
   .swiper {
-    height: 280px;
+    height: 78%;
     &-slide {
       width: 100%;
-      height: 100%;
+      height: initial !important;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -193,10 +186,9 @@ export default {
       }
     }
     &.gallery-thumbs {
-      margin-top: 10px;
-      height: 80px;
+      margin-top: 1%;
+      height: 20%;
       .swiper-slide {
-        width: 16%;
         height: 100%;
         opacity: 0.4;
         transform: scale(1);

@@ -41,10 +41,11 @@
           >
         </template>
         <ImageWithMethod
-          :url="historyItem.url"
+          :src="historyItem.url"
           class="el-collapse-item__image"
           :handleRemove="deleteItem"
           :index="index"
+          fit="contain"
         />
       </el-collapse-item>
     </el-collapse>
@@ -163,6 +164,7 @@ export default {
   box-sizing: border-box;
   display: flex;
   &-history {
+    height: fit-content;
     &-search {
       margin-bottom: 20px;
       .search-input {
@@ -179,6 +181,52 @@ export default {
       }
       /deep/ .el-collapse-item__arrow {
         display: none;
+      }
+    }
+    /deep/ &.el-collapse {
+      width: calc(100% - 220px);
+      border: none;
+      .el-collapse-item {
+        height: fit-content;
+        background-color: #fff5;
+        border-radius: 16px;
+        overflow: hidden;
+        border: none;
+        &:not(:last-child) {
+          margin-bottom: 20px;
+        }
+        &__wrap {
+          background: transparent;
+          border-bottom: none;
+        }
+        &__image {
+          height: 100%;
+        }
+        &__header {
+          text-align: left;
+          position: relative;
+          background-color: #fff5;
+          border: none;
+          &-title {
+            width: 150px;
+            margin-left: 20px;
+          }
+          .el-button.el-button--danger {
+            position: absolute;
+            right: 10px;
+            padding: 10px 20px;
+            background-color: #fff5;
+            border-radius: 8px;
+            border: none;
+            color: #f4defa;
+          }
+          .el-collapse-item__arrow {
+            margin-right: 90px;
+          }
+        }
+        &__content {
+          padding-bottom: 0;
+        }
       }
     }
   }
@@ -225,50 +273,6 @@ export default {
       transition: all 0.7s;
     }
   }
-  /deep/ .el-collapse {
-    width: calc(100% - 220px);
-    border: none;
-    .el-collapse-item {
-      height: fit-content;
-      background-color: #fff5;
-      border-radius: 16px;
-      overflow: hidden;
-      border: none;
-      margin-bottom: 20px;
-      &__wrap {
-        background: transparent;
-        border-bottom: none;
-      }
-      &__image {
-        height: 100%;
-      }
-      &__header {
-        text-align: left;
-        position: relative;
-        background-color: #fff5;
-        border: none;
-        &-title {
-          width: 150px;
-          margin-left: 20px;
-        }
-        .el-button.el-button--danger {
-          position: absolute;
-          right: 10px;
-          padding: 10px 20px;
-          background-color: #fff5;
-          border-radius: 8px;
-          border: none;
-          color: #f4defa;
-        }
-        .el-collapse-item__arrow {
-          margin-right: 90px;
-        }
-      }
-      &__content {
-        padding-bottom: 0;
-      }
-    }
-  }
 
   .swiper {
     width: 200px;
@@ -291,6 +295,32 @@ export default {
           opacity: 1;
         }
       }
+    }
+  }
+
+  @media screen and (max-width: 768px) {
+    &-history {
+      width: 100%;
+      &-search {
+        .search-input {
+          width: 100%;
+        }
+      }
+      /deep/ &.el-collapse {
+        width: 100%;
+      }
+    }
+    &-warning {
+      width: 100%;
+      height: 40vh;
+      margin-bottom: 20px;
+      border-radius: 0;
+      &::after {
+        display: none;
+      }
+    }
+    & .gallery-thumbs {
+      display: none;
     }
   }
 }

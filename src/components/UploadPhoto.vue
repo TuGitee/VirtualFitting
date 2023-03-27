@@ -1,6 +1,6 @@
 <template>
   <div class="upload-demo">
-    <el-badge :value="files.length" :hidden="(files.length < 2)" class="item">
+    <el-badge :value="files.length" :hidden="files.length < 2" class="item">
       <el-upload
         action="#"
         list-type="picture-card"
@@ -15,8 +15,10 @@
         :multiple="multiple"
       >
         <div class="el-upload__text">
-          上传{{ typeName[type] }}<br />
-          {{ multiple ? "(允许上传多张)" : "(仅允许单张)" }}
+          {{ ("上传" + typeName[type]).split("").join(" ") }}<br />
+          {{
+            (multiple ? "(允许上传多张)" : "(仅允许单张)").split("").join(" ")
+          }}
         </div>
 
         <div slot="file" slot-scope="{ file }">
@@ -63,7 +65,6 @@
       </el-upload>
     </el-badge>
     <el-dialog :visible.sync="dialogVisible">
-      <!-- 一组可以预览的图片，左右滑动可以切换图片 -->
       <el-carousel
         v-if="dialogImageUrl.length !== 1"
         :initial-index="0"
@@ -74,16 +75,22 @@
           <el-image :src="item" fit="contain"></el-image>
         </el-carousel-item>
       </el-carousel>
-      <ImageWithMethod
-        v-if="dialogImageUrl.length === 1"
+      <el-image
+        v-else-if="dialogImageUrl.length === 1"
         :src="dialogImageUrl[0]"
+        fit="contain"
+      ></el-image>
+      <ImageWithMethod
+        v-else
+        :src="dialogImageUrl"
+        :options="{ isDownload: true }"
       />
     </el-dialog>
   </div>
 </template>
 
 <script>
-import ImageWithMethod from '@/components/ImageWithMethod';
+import ImageWithMethod from "@/components/ImageWithMethod";
 export default {
   data() {
     return {
@@ -92,8 +99,8 @@ export default {
       dialogImageUrl: "",
       dialogVisible: false,
       typeName: {
-        clothes: "衣服",
-        person: "人物",
+        clothes: "衣服图片",
+        person: "人物图片",
       },
       files: [],
     };
@@ -176,17 +183,20 @@ export default {
     display: none;
   }
 }
-/deep/ .el-dialog {
-  width: 80% !important;
-}
 
 .upload-demo {
-  width: 49%;
-  height: 240px;
+  width: 100%;
+  height: 100%;
   position: relative;
 
   .el-badge {
     display: block;
+    height: 100%;
+    width: 100%;
+    div {
+      height: 100%;
+      width: 100%;
+    }
     /deep/ .el-badge__content {
       height: 30px;
       width: 36px;
@@ -211,7 +221,7 @@ export default {
       justify-content: center;
       align-items: center;
       width: 100%;
-      height: 240px;
+      height: 100%;
       position: relative;
       border: none;
       background: url("@/assets/clothes.png") no-repeat center center;
@@ -220,7 +230,9 @@ export default {
         margin: 5px auto;
       }
       .el-upload__text {
+        white-space: nowrap;
         line-height: 2rem;
+        font-weight: bold;
         color: white;
         border-radius: 20px 20px 0 0;
         position: absolute;
@@ -228,7 +240,6 @@ export default {
         width: 100%;
         bottom: 0;
         font-size: 26px;
-        letter-spacing: 0.5em;
         line-height: 4;
         left: 0;
         background: linear-gradient(#0006, #000d);
@@ -284,7 +295,7 @@ export default {
       justify-content: space-between;
       align-items: center;
       width: 100%;
-      height: 240px;
+      height: 100%;
       margin: 0;
       border: none;
       border-radius: 20px;
@@ -315,6 +326,12 @@ export default {
   }
   /deep/ .el-upload__tip {
     margin-bottom: 20px;
+  }
+  /deep/ .el-carousel__item {
+    overflow-y: overlay;
+    &::-webkit-scrollbar {
+      width: 0;
+    }
   }
 }
 </style>

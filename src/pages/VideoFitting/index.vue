@@ -1,14 +1,16 @@
 <template>
   <el-main class="video-fitting main">
     <div class="video-fitting-video">
-      <canvas id="try-on"></canvas>
+      <div class="video-fitting-video-canvas">
+        <canvas id="try-on"></canvas>
+      </div>
       <el-button @click="snap" class="video-fitting-video-button">
         <i class="el-icon-camera-solid"></i>
       </el-button>
     </div>
 
     <div class="video-fitting-side">
-      <ImageWithMethod :src="preImg" />
+      <ImageWithMethod :src="preImg" :options="{ isDownload: true }" />
       <b>上一次拍摄的图片</b>
       <UploadPhoto type="clothes" />
     </div>
@@ -38,9 +40,12 @@ export default {
     ImageWithMethod,
   },
   mounted() {
+    const canvas = document.getElementById("try-on");
+    const ctx = canvas.getContext("2d");
+    const box = document.querySelector(".video-fitting-video-canvas");
+
     window.addEventListener("resize", () => {
-      canvas.width = document.querySelector(".video-fitting").offsetWidth;
-      canvas.height = document.querySelector(".video-fitting").offsetHeight;
+      init();
     });
 
     function getUserMedia(constraints, success, error) {
@@ -58,45 +63,37 @@ export default {
       }
     }
 
-    let canvas = document.getElementById("try-on");
-    let ctx = canvas.getContext("2d");
-    canvas.width = document.querySelector(".video-fitting").offsetWidth;
-    canvas.height = document.querySelector(".video-fitting").offsetHeight;
+    function init() {
+      const width = box.offsetWidth;
+      const height = box.offsetHeight;
+      canvas.width = width;
+      canvas.height = height;
+      if (
+        navigator.mediaDevices.getUserMedia ||
+        navigator.getUserMedia ||
+        navigator.webkitGetUserMedia ||
+        navigator.mozGetUserMedia
+      ) {
+        getUserMedia({ video: { width, height } }, success, error);
+      } else {
+        alert("不支持");
+      }
+    }
 
-    //成功回调
+    init();
+
     function success(stream) {
       video.srcObject = stream;
       video.onloadedmetadata = function (e) {
         video.play();
         timer = setInterval(() => {
-          // 图像按照比例缩放，不要变形
-          let scale = Math.max(
-            canvas.width / video.videoWidth,
-            canvas.height / video.videoHeight
-          );
-          let width = video.videoWidth * scale;
-          let height = video.videoHeight * scale;
-          // 计算图片绘制到画布上的位置
-          let x = (canvas.width - width) / 2;
-          let y = (canvas.height - height) / 2;
-          ctx.drawImage(video, x, y, width, height);
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
         }, 1000 / 60);
       };
     }
-    //失败回调
+
     function error(error) {
       console.log("访问用户媒体失败");
-    }
-    //开启摄像头
-    if (
-      navigator.mediaDevices.getUserMedia ||
-      navigator.getUserMedia ||
-      navigator.webkitGetUserMedia ||
-      navigator.mozGetUserMedia
-    ) {
-      getUserMedia({ video: { width: 500, height: 500 } }, success, error);
-    } else {
-      alert("不支持");
     }
   },
   beforeDestroy() {
@@ -111,7 +108,6 @@ export default {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  min-width: 340px;
 
   &-video {
     display: flex;
@@ -120,15 +116,19 @@ export default {
     justify-content: space-between;
     height: 100%;
     width: 100%;
-    #try-on {
+    min-width: 200px;
+    &-canvas {
       flex: 1;
-      width: 100%;
-      min-width: 300px;
-      height: 100%;
+      overflow: hidden;
       border-radius: 20px;
-      background-color: #fff5;
-      transform: rotateY(180deg);
+      height: 100%;
+      width: 100%;
+      #try-on {
+        background-color: #fff5;
+        transform: rotateY(180deg);
+      }
     }
+
     &-button {
       margin-top: 20px;
       height: 40px;
@@ -175,6 +175,26 @@ export default {
 
     b {
       color: white;
+      margin: 20px;
+    }
+  }
+
+  @media screen and (max-width: 768px) {
+    flex-direction: column;
+    height: initial;
+    &-video {
+      height: 500px;
+    }
+    &-side {
+      margin-left: 0;
+      margin-top: 20px;
+      padding-bottom: 0;
+      width: 100%;
+      flex-direction: column-reverse;
+      /deep/ & > .image-method-box {
+        height: 100%;
+        width: 100%;
+      }
     }
   }
 }

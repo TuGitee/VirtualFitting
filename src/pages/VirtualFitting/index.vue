@@ -1,11 +1,9 @@
 <template>
   <el-main class="virtual-fitting main">
     <Carousel
-      :list="list"
+      :list="backgroundList"
       class="virtual-fitting-carousel"
       type="background"
-      v-loading="isSearching"
-      element-loading-text="处理中..."
     />
 
     <div class="virtual-fitting-photo">
@@ -19,65 +17,68 @@
     </div>
 
     <div class="virtual-fitting-upload">
-      <div class="virtual-fitting-upload-progress"></div>
+      <el-progress
+        class="virtual-fitting-upload-progress"
+        :text-inside="true"
+        :stroke-width="26"
+        :percentage="progress"
+        :format="formatPercent"
+        @click.native="Upload"
+        @tap.native="Upload"
+      ></el-progress>
     </div>
-
   </el-main>
 </template>
 
 <script>
 import UploadPhoto from "@/components/UploadPhoto.vue";
-import SearchBox from "@/components/SearchBox.vue";
 import Carousel from "@/components/Carousel.vue";
-import ImageWithMethod from "@/components/ImageWithMethod.vue";
-import { invoke } from "@tauri-apps/api/tauri";
 import axios from "axios";
 export default {
   data() {
     return {
-      backgroundList: [],
       filelist: {
         person: {},
         clothes: [],
       },
       createImage: "",
       isloading: false,
-      isSearching: false,
-      list: [
+      progress: 0,
+      backgroundList: [
         {
-          url: "1.jpg",
+          url: "images/background/1.jpg",
           tags: ["海边", "山川"],
         },
         {
-          url: "2.jpg",
+          url: "images/background/2.jpg",
           tags: ["海边", "礁石", "蓝天"],
         },
         {
-          url: "3.jpg",
+          url: "images/background/3.jpg",
           tags: ["蓝天", "街道", "现代"],
         },
         {
-          url: "4.jpg",
+          url: "images/background/4.jpg",
           tags: ["日落", "大海", "夕阳"],
         },
         {
-          url: "5.jpg",
+          url: "images/background/5.jpg",
           tags: ["蓝天", "白云", "马路"],
         },
         {
-          url: "6.jpg",
+          url: "images/background/6.jpg",
           tags: ["蓝天", "现代", "车"],
         },
         {
-          url: "7.jpg",
+          url: "images/background/7.jpg",
           tags: ["石头", "山川"],
         },
         {
-          url: "8.jpg",
+          url: "images/background/8.jpg",
           tags: ["富士山", "花朵", "纯色"],
         },
         {
-          url: "9.jpg",
+          url: "images/background/9.jpg",
           tags: ["船舶", "阳光", "海边"],
         },
       ],
@@ -85,13 +86,23 @@ export default {
   },
   components: {
     UploadPhoto,
-    SearchBox,
     Carousel,
-    ImageWithMethod,
   },
   methods: {
-    handleClick(tab) {
-      this.activeItem = tab.name;
+    formatPercent(val) {
+      return `${val.toFixed(2)}%`;
+    },
+    Upload() {
+      this.$confirm("确定上传图片吗？")
+        .then(() => {
+          this.submitUpload();
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消上传",
+          });
+        });
     },
     formatTime() {
       const date = new Date();
@@ -105,7 +116,6 @@ export default {
     },
     async submitUpload() {
       const { filelist } = this;
-      console.log(filelist);
       if (!filelist.person.file) {
         this.$message.error("请上传人物图片（仅允许一张）");
         return;
@@ -113,7 +123,6 @@ export default {
         this.$message.error("请上传至少一张衣服图片");
         return;
       }
-      if (this.isPay) this.dialogVisible = true;
       this.isloading = true;
       const formData = new FormData();
       formData.append(
@@ -124,10 +133,6 @@ export default {
       filelist.clothes.forEach((item) => {
         formData.append("clothesImage", item.file, item.name);
       });
-      // 打印formData
-      for (let [key, value] of formData.entries()) {
-        console.log(key, value);
-      }
       await axios
         .post("/upload", formData, {
           headers: {
@@ -151,44 +156,42 @@ export default {
               img.height / percentage
             );
             this.createImage = canvas.toDataURL("image/png");
-            if (this.isSave) {
-              let msg = { url: this.createImage, time: this.formatTime() };
-              let length = JSON.stringify(msg).length;
-              try {
-                if (!localStorage.getItem("history")) {
-                  localStorage.setItem("history", JSON.stringify([msg]));
-                } else {
-                  localStorage.setItem(
-                    "history",
-                    JSON.stringify([
-                      msg,
-                      ...JSON.parse(localStorage.getItem("history")),
-                    ])
-                  );
-                }
-              } catch (err) {
-                if (this.isChange) {
-                  this.$message.warning(
-                    "历史记录达到上限！已替换距今最早的图片！"
-                  );
-                  let history = JSON.parse(localStorage.getItem("history"));
-                  let item = history.pop();
-                  while (JSON.stringify(item).length < length) {
-                    length -= JSON.stringify(item).length;
-                    item = history.pop();
-                  }
-                  history.unshift(msg);
-                  localStorage.setItem("history", JSON.stringify(history));
-                } else
-                  this.$message.warning(
-                    "历史记录达到上限！如需添加，请删除部分图片！"
-                  );
+
+            let msg = { url: this.createImage, time: this.formatTime() };
+            let length = JSON.stringify(msg).length;
+            try {
+              if (!localStorage.getItem("history")) {
+                localStorage.setItem("history", JSON.stringify([msg]));
+              } else {
+                localStorage.setItem(
+                  "history",
+                  JSON.stringify([
+                    msg,
+                    ...JSON.parse(localStorage.getItem("history")),
+                  ])
+                );
               }
+            } catch (err) {
+              if (this.isChange) {
+                this.$message.warning(
+                  "历史记录达到上限！已替换距今最早的图片！"
+                );
+                let history = JSON.parse(localStorage.getItem("history"));
+                let item = history.pop();
+                while (JSON.stringify(item).length < length) {
+                  length -= JSON.stringify(item).length;
+                  item = history.pop();
+                }
+                history.unshift(msg);
+                localStorage.setItem("history", JSON.stringify(history));
+              } else
+                this.$message.warning(
+                  "历史记录达到上限！如需添加，请删除部分图片！"
+                );
             }
           };
           this.$message.success("上传成功");
         })
-        // eslint-disable-next-line no-unused-vars
         .catch((err) => {
           this.createImage = "";
           this.$message.error("上传失败");
@@ -203,65 +206,57 @@ export default {
       if (!type) return;
       if (type === "person") this.filelist.person = obj[0];
       else this.filelist[type] = obj;
-      console.log(this.filelist);
     });
+
     window.addEventListener("keyup", (e) => {
-      if (e.key === "Enter") {
-        this.$confirm("确定上传图片吗？").then(() => {
-          this.submitUpload();
-        });
-      }
+      if (e.key === "Enter") this.Upload();
     });
-    // this.$bus.$on("searchBackground", async (item) => {
-    //   this.isSearching = true;
-    //   await invoke("background", { keywords: item.tags.join("-") })
-    //     .then((res) => {
-    //       this.backgroundList = JSON.parse(res);
-    //     })
-    //     .catch((error) => {
-    //       if (error.message.includes("timeout"))
-    //         this.$message.error("网络较差，搜索超时！");
-    //       else if (error.message === "Network Error")
-    //         this.$message.error("网络断线！");
-    //     });
-    //   this.isSearching = false;
-    // });
   },
   created() {
-    // invoke("background", { keywords: "" }).then((res) => {
-    //   this.backgroundList = JSON.parse(res);
-    // });
+    let timer = setInterval(() => {
+      this.progress += 0.1;
+      if (this.progress >= 100) {
+        clearInterval(timer);
+        this.progress = 100;
+      }
+    }, 1000 / 120);
   },
 };
 </script>
 
 <style lang="less" scoped>
 .virtual-fitting {
-  max-height: 100%;
-  min-height: calc(100vh - 76px);
-  padding-top: 0;
+  height: 100vh;
+  padding: 20px;
   display: flex;
   flex-direction: column;
-  overflow: unset;
 
   &-carousel {
-    margin-top: 20px;
+    flex: 1;
+    margin-bottom: 20px;
+    overflow: hidden;
   }
 
   &-photo {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 20px;
+    height: 30%;
+    margin-bottom: 20px;
+
+    &-upload {
+      &:last-child:not(:first-child) {
+        margin-left: 20px;
+      }
+    }
   }
 
   &-upload {
     width: 100%;
-    margin-top: 20px;
     height: 26px;
     line-height: 26px;
     border: none;
-    background-color: white;
+    background-color: #fff5;
     border-radius: 20px;
     font-weight: 700;
     color: #e4b0f4;
@@ -270,24 +265,42 @@ export default {
     position: relative;
     overflow: hidden;
     box-shadow: 0 0 20px -10px #e4b0f4;
+
     &::after {
       content: "按回车键上传到服务器";
     }
     &-progress {
       position: absolute;
       top: 0;
-      left: -2px;
-      width: 200px;
+      width: 100%;
       height: 100%;
-      background: linear-gradient(
-        90deg,
-        #1e9dbdcc,
-        #173e96cc,
-        #4a249bcc,
-        #6d3f9bcc
-      );
+      border: none;
       border-radius: 20px;
       transition: all 0.3s;
+      /deep/ .el-progress-bar__outer {
+        background: transparent !important;
+      }
+      /deep/ .el-progress-bar__inner {
+        background: linear-gradient(90deg, #ffffff00, #4a249bff);
+        &Text {
+          color: white !important;
+        }
+      }
+    }
+  }
+
+  @media screen and (max-width: 768px) {
+    min-height: 100vh;
+    &-photo {
+      height: 400px;
+      &-upload {
+        &:last-child:not(:first-child) {
+          margin-top: 20px;
+          margin-left: 0;
+        }
+      }
+
+      flex-direction: column;
     }
   }
 }

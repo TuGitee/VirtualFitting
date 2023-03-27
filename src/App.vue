@@ -1,6 +1,6 @@
 <template>
   <el-container id="app" direction="vertical">
-    <HeaderBar v-if="$router.currentRoute.meta.isShow" />
+    <HeaderBar class="header-bar" v-if="$router.currentRoute.meta.isShow" />
     <router-view />
   </el-container>
 </template>
@@ -21,6 +21,7 @@ export default {
   padding: 0;
   list-style: none;
   box-sizing: border-box;
+  user-select: none;
 
   a {
     text-decoration: none;
@@ -29,6 +30,8 @@ export default {
   img[src=""],
   img:not([src]) {
     opacity: 0;
+    user-select: none;
+    -webkit-user-drag: none;
   }
 
   ::-webkit-scrollbar {
@@ -38,9 +41,13 @@ export default {
       background-color: transparent;
     }
     &-thumb {
-      background-color: #EFB6FF;
+      background-color: #efb6ff;
       border-radius: 10px;
     }
+  }
+
+  .el-dialog {
+    margin-top: 10vh !important;
   }
 
   .main {
@@ -57,7 +64,6 @@ export default {
       top: 0;
       left: 0;
       z-index: -99999;
-      // background: linear-gradient(45deg, #dbb3f2, #7657d2);
       background: url("@/assets/photo.png") no-repeat center center;
       background-size: cover;
       filter: blur(1rem);
@@ -71,5 +77,15 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+
+  @media screen and (max-width: 768px) {
+    .header-bar {
+      width: 50px;
+    }
+    .main {
+      left: 70px;
+      width: calc(100% - 70px);
+    }
+  }
 }
 </style>

@@ -1,24 +1,9 @@
 <template>
-  <!-- <el-header class="header" height="auto">
-    <el-menu
-      mode="horizontal"
-      router
-      :default-active="$route.path"
-    >
-      <el-menu-item v-for="(item,index) in navList" :key="index" :index="item.path">
-        {{item.name}}
-      </el-menu-item>
-    </el-menu>
-  </el-header> -->
-
   <div>
     <el-menu
       :default-active="$route.path"
       router
       class="el-menu-vertical-demo"
-      @open="handleOpen"
-      @close="handleClose"
-      :collapse="isCollapse"
     >
       <el-menu-item
         v-for="(item, index) in navList"
@@ -29,7 +14,8 @@
         <span slot="title">{{ item.meta.title }}</span>
       </el-menu-item>
       <div class="give-me-money" @click="dialogVisible = true">
-        <i class="el-icon-goods"></i>赞赏我们吧！
+        <i class="el-icon-goods"></i
+        ><span class="give-me-money-word">赞赏我们吧！</span>
       </div>
     </el-menu>
     <el-dialog
@@ -73,18 +59,11 @@ export default {
   data() {
     return {
       navList: routes.filter((item) => item.meta.isShow),
-      isCollapse: false,
       dialogVisible: false,
       activeItem: "Alipay",
     };
   },
   methods: {
-    handleOpen(key, keyPath) {
-      console.log(key, keyPath);
-    },
-    handleClose(key, keyPath) {
-      console.log(key, keyPath);
-    },
     handleClick(tab) {
       this.activeItem = tab.name;
     },
@@ -182,6 +161,33 @@ export default {
     i {
       color: #efb6ff;
       font-weight: 700;
+    }
+  }
+  @media screen and (max-width: 768px) {
+    width: 50px;
+    &-item {
+      margin: 0 !important;
+      padding: 0 !important;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      i {
+        margin: 0;
+      }
+      span {
+        display: none;
+      }
+    }
+    .give-me-money {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      &-word {
+        display: none;
+      }
+      i {
+        margin: 0;
+      }
     }
   }
 }
