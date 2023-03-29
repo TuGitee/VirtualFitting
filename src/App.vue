@@ -22,6 +22,8 @@ export default {
   list-style: none;
   box-sizing: border-box;
   user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
 
   a {
     text-decoration: none;
@@ -41,19 +43,24 @@ export default {
       background-color: transparent;
     }
     &-thumb {
-      background-color: #efb6ff;
+      background-color: @color;
       border-radius: 10px;
     }
   }
 
   .el-dialog {
     margin-top: 10vh !important;
+
+    @media screen and (max-width: 768px) {
+      width: 90%;
+      margin-top: 15vh !important;
+    }
   }
 
   .main {
     position: relative;
-    left: 220px;
-    width: calc(100% - 220px);
+    left: calc(@nav-width + @margin);
+    width: calc(100% - @nav-width - @margin);
     height: 100%;
     overflow: overlay;
     &::after {
@@ -77,15 +84,23 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+}
 
-  @media screen and (max-width: 768px) {
-    .header-bar {
-      width: 50px;
-    }
-    .main {
-      left: 70px;
-      width: calc(100% - 70px);
-    }
+@media screen and (max-width: 768px) {
+  @nav-width: 50px;
+  .header-bar {
+    width: @nav-width;
+  }
+  .main {
+    left: calc(@nav-width + @margin);
+    width: calc(100% - @nav-width - @margin);
+  }
+  .el-message {
+    width: 90%;
+    min-width: 0;
+  }
+  .el-message-box {
+    width: 90%;
   }
 }
 </style>

@@ -166,7 +166,7 @@ export default {
   &-history {
     height: fit-content;
     &-search {
-      margin-bottom: 20px;
+      margin-bottom: @margin;
       .search-input {
         height: 100%;
         /deep/ .el-input__inner {
@@ -188,12 +188,12 @@ export default {
       border: none;
       .el-collapse-item {
         height: fit-content;
-        background-color: #fff5;
+        background-color: @background;
         border-radius: 16px;
         overflow: hidden;
         border: none;
         &:not(:last-child) {
-          margin-bottom: 20px;
+          margin-bottom: @margin;
         }
         &__wrap {
           background: transparent;
@@ -205,17 +205,17 @@ export default {
         &__header {
           text-align: left;
           position: relative;
-          background-color: #fff5;
+          background-color: @background;
           border: none;
           &-title {
             width: 150px;
-            margin-left: 20px;
+            margin-left: @margin;
           }
           .el-button.el-button--danger {
             position: absolute;
             right: 10px;
             padding: 10px 20px;
-            background-color: #fff5;
+            background-color: @background;
             border-radius: 8px;
             border: none;
             color: #f4defa;
@@ -233,20 +233,20 @@ export default {
   &-warning {
     flex: 1;
     height: 50vh;
-    color: white;
+    color: @white;
     transform: translateY(50%);
-    background-color: #fff5;
-    border-radius: 20px;
+    background-color: @background;
+    border-radius: @margin;
     position: relative;
     overflow: hidden;
     /deep/ .el-result__title p {
-      color: white;
+      color: @white;
     }
     /deep/ .el-result__subtitle p {
-      color: white;
+      color: @white;
     }
     /deep/ .el-result__extra button {
-      background-color: #efb6ff;
+      background-color: @color;
       border: none;
     }
     &:hover {
@@ -276,10 +276,10 @@ export default {
 
   .swiper {
     width: 200px;
-    margin: 0 0 0 20px !important;
-    height: calc(100% - 40px) !important;
+    margin: 0 0 0 @margin !important;
+    height: calc(100% - @margin * 2) !important;
     position: fixed;
-    right: 20px;
+    right: @margin;
     &.gallery-thumbs {
       margin-top: 10px;
       .swiper-slide {
@@ -289,7 +289,7 @@ export default {
           width: 100%;
           height: 100%;
           object-fit: cover;
-          border-radius: 20px;
+          border-radius: @margin;
         }
         &-active {
           opacity: 1;
@@ -313,7 +313,7 @@ export default {
     &-warning {
       width: 100%;
       height: 40vh;
-      margin-bottom: 20px;
+      margin-bottom: @margin;
       border-radius: 0;
       &::after {
         display: none;

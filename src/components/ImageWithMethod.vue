@@ -172,16 +172,16 @@ export default {
     width: 100%;
     opacity: 0;
     background-color: rgba(0, 0, 0, 0.3);
-    color: #fff;
+    color: @white;
     font-size: 20px;
     &-preview {
-      margin-right: 20px;
+      margin-right: @margin;
     }
     &-delete {
-      margin-right: 20px;
+      margin-right: @margin;
     }
     &-download {
-      margin-right: 20px;
+      margin-right: @margin;
     }
     & span:last-child {
       margin-right: 0;

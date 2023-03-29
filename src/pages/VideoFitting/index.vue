@@ -120,19 +120,19 @@ export default {
     &-canvas {
       flex: 1;
       overflow: hidden;
-      border-radius: 20px;
+      border-radius: @margin;
       height: 100%;
       width: 100%;
       #try-on {
-        background-color: #fff5;
+        background-color: @background;
         transform: rotateY(180deg);
       }
     }
 
     &-button {
-      margin-top: 20px;
+      margin-top: @margin;
       height: 40px;
-      padding: 0 20px;
+      padding: 0 @margin;
       /deep/ .el-icon-camera-solid {
         font-size: 20px;
       }
@@ -140,7 +140,7 @@ export default {
   }
 
   &-side {
-    margin-left: 20px;
+    margin-left: @margin;
     padding-bottom: 60px;
     width: 500px;
     height: 100%;
@@ -174,8 +174,8 @@ export default {
     }
 
     b {
-      color: white;
-      margin: 20px;
+      color: @white;
+      margin: @margin;
     }
   }
 
@@ -187,7 +187,7 @@ export default {
     }
     &-side {
       margin-left: 0;
-      margin-top: 20px;
+      margin-top: @margin;
       padding-bottom: 0;
       width: 100%;
       flex-direction: column-reverse;

@@ -1,10 +1,6 @@
 <template>
   <div>
-    <el-menu
-      :default-active="$route.path"
-      router
-      class="el-menu-vertical-demo"
-    >
+    <el-menu :default-active="$route.path" router class="el-menu-vertical-demo">
       <el-menu-item
         v-for="(item, index) in navList"
         :key="index"
@@ -73,21 +69,19 @@ export default {
 
 <style lang="less" scoped>
 .el-menu {
-  color: #333;
+  color: @black;
   text-align: center;
   position: fixed;
   top: 0;
   left: 0;
   z-index: 1000;
-  background-color: #fff;
-  width: 200px;
-  min-height: 400px;
-  height: calc(100% - 40px);
-  background-color: #fff5;
-  color: white;
-  border-radius: 20px;
+  width: @nav-width;
+  height: calc(100% - @margin * 2);
+  background-color: @background;
+  color: @white;
+  border-radius: @margin;
   box-shadow: 0 0 20px -10px rgba(0, 0, 0, 0.2);
-  margin: 20px;
+  margin: @margin;
   border: none;
 
   .give-me-money {
@@ -101,7 +95,7 @@ export default {
     border-top: 1px solid #ebeef5;
     cursor: pointer;
     &:hover {
-      color: #b480c3;
+      color: @color-dark;
     }
     i {
       margin-right: 10px;
@@ -114,15 +108,15 @@ export default {
   }
 
   /deep/ .el-submenu {
-    color: white;
-    color: white;
+    color: @white;
+    color: @white;
     i {
-      color: white;
+      color: @white;
     }
     &__title {
       text-align: left;
       margin-left: 10px;
-      color: white;
+      color: @white;
       &:hover {
         background-color: transparent;
       }
@@ -131,9 +125,9 @@ export default {
   /deep/ .el-menu-item {
     text-align: left;
     margin-left: 10px;
-    color: white;
+    color: @white;
     i {
-      color: white;
+      color: @white;
     }
 
     &:hover {
@@ -156,10 +150,10 @@ export default {
   }
 
   .is-active {
-    color: #efb6ff;
+    color: @color;
     font-weight: 700;
     i {
-      color: #efb6ff;
+      color: @color;
       font-weight: 700;
     }
   }

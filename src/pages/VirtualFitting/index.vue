@@ -1,5 +1,5 @@
 <template>
-  <el-main class="virtual-fitting main">
+  <el-main class="virtual-fitting main" ref="b">
     <Carousel
       :list="backgroundList"
       class="virtual-fitting-carousel"
@@ -43,6 +43,7 @@ export default {
       },
       createImage: "",
       isloading: false,
+      isUpload: false,
       progress: 0,
       backgroundList: [
         {
@@ -93,6 +94,7 @@ export default {
       return `${val.toFixed(2)}%`;
     },
     Upload() {
+      this.isUpload = true;
       this.$confirm("确定上传图片吗？")
         .then(() => {
           this.submitUpload();
@@ -102,6 +104,9 @@ export default {
             type: "info",
             message: "已取消上传",
           });
+        })
+        .finally(() => {
+          this.isUpload = false;
         });
     },
     formatTime() {
@@ -123,7 +128,10 @@ export default {
         this.$message.error("请上传至少一张衣服图片");
         return;
       }
+
+      if (this.isloading) return;
       this.isloading = true;
+
       const formData = new FormData();
       formData.append(
         "personImage",
@@ -207,9 +215,8 @@ export default {
       if (type === "person") this.filelist.person = obj[0];
       else this.filelist[type] = obj;
     });
-
-    window.addEventListener("keyup", (e) => {
-      if (e.key === "Enter") this.Upload();
+    document.addEventListener("keyup", (e) => {
+      if (e.key === " " && !this.isUpload) this.Upload();
     });
   },
   created() {
@@ -227,13 +234,13 @@ export default {
 <style lang="less" scoped>
 .virtual-fitting {
   height: 100vh;
-  padding: 20px;
+  padding: @margin;
   display: flex;
   flex-direction: column;
 
   &-carousel {
     flex: 1;
-    margin-bottom: 20px;
+    margin-bottom: @margin;
     overflow: hidden;
   }
 
@@ -242,11 +249,11 @@ export default {
     justify-content: space-between;
     align-items: center;
     height: 30%;
-    margin-bottom: 20px;
+    margin-bottom: @margin;
 
     &-upload {
       &:last-child:not(:first-child) {
-        margin-left: 20px;
+        margin-left: @margin;
       }
     }
   }
@@ -256,8 +263,8 @@ export default {
     height: 26px;
     line-height: 26px;
     border: none;
-    background-color: #fff5;
-    border-radius: 20px;
+    background-color: @background;
+    border-radius: @margin;
     font-weight: 700;
     color: #e4b0f4;
     cursor: pointer;
@@ -275,7 +282,7 @@ export default {
       width: 100%;
       height: 100%;
       border: none;
-      border-radius: 20px;
+      border-radius: @margin;
       transition: all 0.3s;
       /deep/ .el-progress-bar__outer {
         background: transparent !important;
@@ -283,7 +290,7 @@ export default {
       /deep/ .el-progress-bar__inner {
         background: linear-gradient(90deg, #ffffff00, #4a249bff);
         &Text {
-          color: white !important;
+          color: @white !important;
         }
       }
     }
@@ -295,7 +302,7 @@ export default {
       height: 400px;
       &-upload {
         &:last-child:not(:first-child) {
-          margin-top: 20px;
+          margin-top: @margin;
           margin-left: 0;
         }
       }

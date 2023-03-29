@@ -203,7 +203,7 @@ export default {
       line-height: 30px;
       font-size: 16px;
       transform: translate(0px, 8px);
-      background-color: #b381c2;
+      background-color: @color-dark;
       z-index: 9;
     }
   }
@@ -211,7 +211,7 @@ export default {
   /deep/ .el-upload--picture-card {
     height: 100%;
     width: 100%;
-    border-radius: 20px;
+    border-radius: @margin;
     overflow: hidden;
     border: 2px solid #335aa7;
 
@@ -233,8 +233,8 @@ export default {
         white-space: nowrap;
         line-height: 2rem;
         font-weight: bold;
-        color: white;
-        border-radius: 20px 20px 0 0;
+        color: @white;
+        border-radius: @margin @margin 0 0;
         position: absolute;
         height: 120px;
         width: 100%;
@@ -243,7 +243,7 @@ export default {
         line-height: 4;
         left: 0;
         background: linear-gradient(#0006, #000d);
-        filter: drop-shadow(0 0 1 #fff);
+        filter: drop-shadow(0 0 1 @white);
         transition: all 0.5s;
       }
       &:hover {
@@ -256,24 +256,24 @@ export default {
             content: "";
             height: 5px;
             width: 40px;
-            background-color: white;
+            background-color: @white;
             position: absolute;
             left: 50%;
             top: 50%;
             transform: translate(-50%, -50%);
-            border-radius: 20px;
+            border-radius: @margin;
             animation: show 0.5s;
           }
           &::before {
             content: "";
             height: 40px;
             width: 5px;
-            background-color: white;
+            background-color: @white;
             position: absolute;
             left: 50%;
             top: 50%;
             transform: translate(-50%, -50%);
-            border-radius: 20px;
+            border-radius: @margin;
             animation: show 0.5s;
           }
           @keyframes show {
@@ -298,7 +298,7 @@ export default {
       height: 100%;
       margin: 0;
       border: none;
-      border-radius: 20px;
+      border-radius: @margin;
       position: absolute;
       z-index: 1;
       div {
@@ -325,7 +325,7 @@ export default {
     }
   }
   /deep/ .el-upload__tip {
-    margin-bottom: 20px;
+    margin-bottom: @margin;
   }
   /deep/ .el-carousel__item {
     overflow-y: overlay;

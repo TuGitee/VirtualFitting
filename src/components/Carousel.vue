@@ -150,15 +150,14 @@ export default {
   },
   created() {
     vm = this;
-  }
+  },
 };
 </script>
 
 <style lang="less" scoped>
-@theme-color: linear-gradient(45deg, #1c1f3e, #2a37cc);
 #root {
-  border-radius: 20px;
-  background-color: #fff5;
+  border-radius: @margin;
+  background-color: @background;
   box-shadow: 0 0 20px -10px #1c1f3e;
   padding: 1% 0;
   img {
