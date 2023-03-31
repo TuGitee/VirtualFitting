@@ -17,7 +17,7 @@
       <el-collapse-item class="main-history-search">
         <template slot="title">
           <el-input
-            placeholder="请输入搜索内容"
+            placeholder="请输入日期进行检索"
             v-model="searchText"
             class="search-input"
             @keyup.enter.native="search"
@@ -83,6 +83,10 @@ export default {
         { time: "2023-1-1", url: "images/5.png" },
         { time: "2023-1-3", url: "images/6.png" },
         { time: "2023-2-2", url: "images/7.png" },
+        { time: "2023-2-4", url: "images/8.png" },
+        { time: "2023-3-3", url: "images/9.png" },
+        { time: "2023-3-8", url: "images/Alipay.png" },
+        { time: "2023-3-29", url: "images/WeChatPay.png" },
       ],
       swiperOptionThumbs: {
         direction: "vertical",
@@ -124,18 +128,31 @@ export default {
     },
     search() {
       this.activeIndex = [];
+      if (this.searchText.trim() === "") return;
       this.historyList.filter((item) => {
         if (item.time.includes(this.searchText)) {
           this.activeIndex.push(item.time);
         }
       });
-      console.log(this.activeIndex);
+      this.scrollTo();
+    },
+    scrollTo() {
+      this.$nextTick(() => {
+        setTimeout(() => {
+          document
+            .querySelector(
+              ".el-collapse-item.is-active:not(.main-history-search)"
+            )
+            ?.scrollIntoView({ behavior: "smooth", block: "center" });
+        });
+      });
     },
     async focus(e, that) {
       let clickedIndex = that.clickedIndex;
       if (!that.clickedSlide) return;
       if (clickedIndex === undefined) return;
       this.activeIndex = that.clickedSlide?.getAttribute("data-value");
+      this.scrollTo();
 
       if (vm.focusIndex !== clickedIndex) {
         vm.focusIndex = clickedIndex;
@@ -173,6 +190,7 @@ export default {
           background-color: transparent;
           height: 100%;
           border: none;
+          color: @white;
         }
         /deep/ .el-input-group__append {
           background-color: #fff9;
@@ -218,7 +236,7 @@ export default {
             background-color: @background;
             border-radius: 8px;
             border: none;
-            color: #f4defa;
+            color: @color-light;
           }
           .el-collapse-item__arrow {
             margin-right: 90px;

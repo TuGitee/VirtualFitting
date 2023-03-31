@@ -1,5 +1,13 @@
 <template>
   <div class="upload-demo">
+    <el-input
+      placeholder="请填入相关图片链接"
+      v-model="searchText"
+      class="search-input"
+      @keyup.enter.native="search"
+    >
+      <el-button slot="append" icon="el-icon-search" @click="search" />
+    </el-input>
     <el-badge :value="files.length" :hidden="files.length < 2" class="item">
       <el-upload
         action="#"
@@ -15,10 +23,13 @@
         :multiple="multiple"
       >
         <div class="el-upload__text">
-          {{ ("上传" + typeName[type]).split("").join(" ") }}<br />
-          {{
-            (multiple ? "(允许上传多张)" : "(仅允许单张)").split("").join(" ")
-          }}
+          <p>{{ ("上传" + typeName[type]).split("").join(" ") }}</p>
+          <p>
+            {{
+              (multiple ? "(允许上传多张)" : "(仅允许单张)").split("").join(" ")
+            }}
+          </p>
+          <p>请上传与选框比例相近的图片</p>
         </div>
 
         <div slot="file" slot-scope="{ file }">
@@ -96,6 +107,7 @@ export default {
     return {
       disabled: false,
       isUpload: false,
+      searchText: "",
       dialogImageUrl: "",
       dialogVisible: false,
       typeName: {
@@ -132,14 +144,13 @@ export default {
     handleDownload(file) {
       let a = document.createElement("a");
       a.href = file.url;
-      a.download = file.name;
+      a.download = +new Date() + ".jpg";
       a.click();
     },
-    async handleChange() {
-      this.files =
-        this.type === "clothes"
-          ? this.$refs.upload.uploadFiles
-          : this.$refs.upload.uploadFiles.slice(0, 1);
+    handleChange() {
+      this.files = this.multiple
+        ? this.$refs.upload.uploadFiles
+        : this.$refs.upload.uploadFiles.slice(0, 1);
       this.$bus.$emit(
         "uploadPhoto",
         this.type,
@@ -170,6 +181,49 @@ export default {
       this.isUpload = false;
       this.$refs.upload.$refs["upload-inner"].handleClick();
     },
+    search() {
+      if (!this.searchText.trim() || !/^http/.test(this.searchText.trim())) {
+        this.$message({
+          message: "链接为空或不合法",
+          type: "error",
+        });
+        return;
+      }
+
+      this.$axios
+        .get(this.searchText, {
+          responseType: "blob",
+        })
+        .then((res) => {
+          if (!res.data.type.includes("image")) {
+            throw new Error("图片链接有误，搜索失败");
+          }
+          const raw = new File([res.data], +new Date(), {
+            type: "image/jpeg",
+          });
+          const obj = {
+            raw,
+            url: URL.createObjectURL(res.data),
+            uid: raw.lastModified,
+            name: raw.name,
+            status: "ready",
+            percentage: 0,
+            size: raw.size,
+          };
+          if (this.multiple) {
+            this.$refs.upload.uploadFiles.push(obj);
+            this.handleChange();
+            return;
+          } else this.$refs.upload.uploadFiles = [obj];
+          this.handleChange();
+        })
+        .catch((err) => {
+          this.$message({
+            message: err.message,
+            type: "error",
+          });
+        });
+    },
   },
 };
 </script>
@@ -188,8 +242,32 @@ export default {
   width: 100%;
   height: 100%;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  color: @white;
+
+  .search-input {
+    height: 40px;
+    background-color: @background;
+    border-radius: @margin;
+    overflow: hidden;
+    margin-bottom: @margin;
+
+    /deep/ .el-input__inner {
+      background-color: transparent;
+      height: 100%;
+      border: none;
+      color: @white;
+    }
+    /deep/ .el-input-group__append {
+      background-color: #fff9;
+      border: none;
+      border-radius: @margin;
+    }
+  }
 
   .el-badge {
+    flex: 1;
     display: block;
     height: 100%;
     width: 100%;
@@ -245,13 +323,23 @@ export default {
         background: linear-gradient(#0006, #000d);
         filter: drop-shadow(0 0 1 @white);
         transition: all 0.5s;
+
+        p {
+          margin-top: 10px;
+          transition: all 0.5s;
+          &:last-child {
+            font-size: 12px;
+            color: #ccc;
+          }
+          &:not(:first-child) {
+            opacity: 0;
+          }
+        }
       }
       &:hover {
         border: none;
         .el-upload__text {
           height: 100%;
-          font-size: 16px;
-          line-height: 2;
           &::after {
             content: "";
             height: 5px;
@@ -275,6 +363,16 @@ export default {
             transform: translate(-50%, -50%);
             border-radius: @margin;
             animation: show 0.5s;
+          }
+          p {
+            opacity: 1;
+            line-height: 1.1;
+            font-size: 16px;
+            &:not(:first-child) {
+              font-size: 12px;
+              font-weight: 400;
+              margin-top: 5px;
+            }
           }
           @keyframes show {
             from {

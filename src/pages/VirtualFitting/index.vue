@@ -215,9 +215,13 @@ export default {
       if (type === "person") this.filelist.person = obj[0];
       else this.filelist[type] = obj;
     });
-    document.addEventListener("keyup", (e) => {
-      if (e.key === " " && !this.isUpload) this.Upload();
-    });
+    document.onkeydown = (e) => {
+      if(this.isUpload) return;
+      if (e.key === 'Enter') {
+        this.Upload();
+        e.preventDefault();
+      }
+    }
   },
   created() {
     let timer = setInterval(() => {
@@ -233,10 +237,10 @@ export default {
 
 <style lang="less" scoped>
 .virtual-fitting {
-  height: 100vh;
   padding: @margin;
   display: flex;
   flex-direction: column;
+  height: 100vh;
 
   &-carousel {
     flex: 1;
@@ -248,7 +252,7 @@ export default {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    height: 30%;
+    height: 40%;
     margin-bottom: @margin;
 
     &-upload {
@@ -274,7 +278,7 @@ export default {
     box-shadow: 0 0 20px -10px #e4b0f4;
 
     &::after {
-      content: "按回车键上传到服务器";
+      content: "按 Enter 键上传到服务器";
     }
     &-progress {
       position: absolute;
@@ -297,9 +301,9 @@ export default {
   }
 
   @media screen and (max-width: 768px) {
-    min-height: 100vh;
+    height: initial;
     &-photo {
-      height: 400px;
+      height: 628px;
       &-upload {
         &:last-child:not(:first-child) {
           margin-top: @margin;

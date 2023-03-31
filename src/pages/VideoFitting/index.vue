@@ -151,7 +151,7 @@ export default {
     height: 100%;
     /deep/ .upload-demo {
       width: 100%;
-      height: 240px;
+      height: 360px;
       .item {
         height: 100%;
         div {
