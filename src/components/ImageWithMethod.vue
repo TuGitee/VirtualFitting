@@ -78,18 +78,6 @@ export default {
       type: String,
       default: "cover",
     },
-    handleRemove: {
-      type: Function,
-      default: () => {
-        vm.$confirm("该操作不可逆，请谨慎选择！", "删除图片提示")
-          .then(() => {
-            vm.url = "";
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-      },
-    },
   },
   data() {
     return {
@@ -121,6 +109,9 @@ export default {
       a.href = this.url;
       a.download = +new Date() + "_图片.jpg";
       a.click();
+    },
+    handleRemove(index) {
+      this.$emit("handleRemove", index);
     },
     handleHover() {
       this.disabled = !this.disabled;

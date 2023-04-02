@@ -4,7 +4,7 @@
       placeholder="请填入相关图片链接"
       v-model="searchText"
       class="search-input"
-      @keyup.enter.native="search"
+      @keyup.enter.native.prevent.stop="search"
     >
       <el-button slot="append" icon="el-icon-search" @click="search" />
     </el-input>

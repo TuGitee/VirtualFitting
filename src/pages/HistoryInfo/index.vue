@@ -43,7 +43,7 @@
         <ImageWithMethod
           :src="historyItem.url"
           class="el-collapse-item__image"
-          :handleRemove="deleteItem"
+          @handleRemove="deleteItem"
           :index="index"
           fit="contain"
         />

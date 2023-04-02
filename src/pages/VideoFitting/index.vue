@@ -27,6 +27,7 @@ export default {
   data() {
     return {
       preImg: "",
+      clothes: {},
     };
   },
   methods: {
@@ -40,6 +41,7 @@ export default {
     ImageWithMethod,
   },
   mounted() {
+    const that = this;
     const canvas = document.getElementById("try-on");
     const ctx = canvas.getContext("2d");
     const box = document.querySelector(".video-fitting-video-canvas");
@@ -84,10 +86,20 @@ export default {
 
     function success(stream) {
       video.srcObject = stream;
-      video.onloadedmetadata = function (e) {
+      video.onloadedmetadata = (e) => {
         video.play();
         timer = setInterval(() => {
           ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          if (!that.clothes.file) return;
+          canvas.toBlob((blob) => {
+            const file = new File([blob], +new Date(), {
+              type: "image/png",
+            });
+            // 发送请求
+            const formData = new FormData();
+            formData.append("personImage", file);
+            formData.append("clothesImage", that.clothes);
+          });
         }, 1000 / 60);
       };
     }
@@ -98,6 +110,11 @@ export default {
   },
   beforeDestroy() {
     clearInterval(timer);
+  },
+  created() {
+    this.$bus.$on("uploadPhoto", (type, obj) => {
+      this.clothes = obj[0];
+    });
   },
 };
 </script>
