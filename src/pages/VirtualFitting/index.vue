@@ -67,7 +67,7 @@ export default {
         clothes: [],
       },
         dialogVisible: false,
-      createImage: "",
+      createImage: [],
       isloading: false,
       isUpload: false,
       progress: 0,
@@ -159,9 +159,16 @@ export default {
       }
       if (this.isPay) this.dialogVisible = true;
 
-      let payload = `${filelist.person.file.name}|${filelist.clothes[0].file.name}`
+      let payload = `${filelist.person.file.name}|`;
+      let tmp = []
+      for (let clo of filelist.clothes) {
+          tmp.push(clo.file.name)
+      }
+      payload += tmp.join(',');
+      console.log(payload);
       if (this.isloading) return;
       this.isloading = true;
+      this.createImage = []
       ws.send(payload)
       return;
       const formData = new FormData();
@@ -270,7 +277,7 @@ export default {
       console.log(data)
       let fileReader = new FileReader();
       fileReader.onload = (e) => {
-          this.createImage = [e.target.result]
+          this.createImage.push(e.target.result)
           this.dialogVisible=true;
         }
 
