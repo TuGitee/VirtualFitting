@@ -37,6 +37,7 @@ import axios from "axios";
 export default {
   data() {
     return {
+      ws: new WebSocket("ws://192.168.1.115:8000/ws"),
       filelist: {
         person: {},
         clothes: [],
@@ -47,39 +48,39 @@ export default {
       progress: 0,
       backgroundList: [
         {
-          url: "images/background/1.jpg",
+          url: "background/1.jpg",
           tags: ["海边", "山川"],
         },
         {
-          url: "images/background/2.jpg",
+          url: "background/2.jpg",
           tags: ["海边", "礁石", "蓝天"],
         },
         {
-          url: "images/background/3.jpg",
+          url: "background/3.jpg",
           tags: ["蓝天", "街道", "现代"],
         },
         {
-          url: "images/background/4.jpg",
+          url: "background/4.jpg",
           tags: ["日落", "大海", "夕阳"],
         },
         {
-          url: "images/background/5.jpg",
+          url: "background/5.jpg",
           tags: ["蓝天", "白云", "马路"],
         },
         {
-          url: "images/background/6.jpg",
+          url: "background/6.jpg",
           tags: ["蓝天", "现代", "车"],
         },
         {
-          url: "images/background/7.jpg",
+          url: "background/7.jpg",
           tags: ["石头", "山川"],
         },
         {
-          url: "images/background/8.jpg",
+          url: "background/8.jpg",
           tags: ["富士山", "花朵", "纯色"],
         },
         {
-          url: "images/background/9.jpg",
+          url: "background/9.jpg",
           tags: ["船舶", "阳光", "海边"],
         },
       ],
@@ -121,6 +122,8 @@ export default {
     },
     async submitUpload() {
       const { filelist } = this;
+      const ws = this.ws;
+      console.log(filelist);
       if (!filelist.person.file) {
         this.$message.error("请上传人物图片（仅允许一张）");
         return;
@@ -128,10 +131,14 @@ export default {
         this.$message.error("请上传至少一张衣服图片");
         return;
       }
+      if (this.isPay) this.dialogVisible = true;
+
+      let payload = `${filelist.person.file.name}|${filelist.clothes[0].file.name}`
+      ws.send(payload)
 
       if (this.isloading) return;
       this.isloading = true;
-
+      return;
       const formData = new FormData();
       formData.append(
         "personImage",
@@ -200,6 +207,7 @@ export default {
           };
           this.$message.success("上传成功");
         })
+        // eslint-disable-next-line no-unused-vars
         .catch((err) => {
           this.createImage = "";
           this.$message.error("上传失败");
@@ -231,6 +239,32 @@ export default {
         this.progress = 100;
       }
     }, 1000 / 120);
+    // invoke("background", { keywords: "" }).then((res) => {
+    //   this.backgroundList = JSON.parse(res);
+    // });
+    let ws = this.ws
+    ws.onopen = evt => {
+      console.log("Connection establied!");
+    }
+
+    ws.onmessage = evt => {
+      let data = evt.data;
+      // console.log(data)
+      let img = new Image();
+      let fileReader = new FileReader();
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+
+      fileReader.onload = (e) => {
+        img.src = e.target.result;
+        img.onload = () => {
+          ctx.drawImage(img, 0, 0)
+          this.createImage = canvas.toDataURL("image/png");
+        }
+      }
+      fileReader.readAsDataURL(data)
+      this.isloading = false;
+    }
   },
 };
 </script>
@@ -264,6 +298,7 @@ export default {
 
   &-upload {
     width: 100%;
+    margin-top: 20px;
     height: 26px;
     line-height: 26px;
     border: none;
