@@ -1,5 +1,5 @@
 <template>
-  <el-main class="virtual-fitting main" ref="b">
+  <el-main class="virtual-fitting main">
     <Carousel
       :list="backgroundList"
       class="virtual-fitting-carousel"
@@ -215,13 +215,6 @@ export default {
       if (type === "person") this.filelist.person = obj[0];
       else this.filelist[type] = obj;
     });
-    document.onkeydown = (e) => {
-      if(this.isUpload) return;
-      if (e.key === 'Enter') {
-        this.Upload();
-        e.preventDefault();
-      }
-    }
   },
   created() {
     let timer = setInterval(() => {
@@ -278,7 +271,7 @@ export default {
     box-shadow: 0 0 20px -10px #e4b0f4;
 
     &::after {
-      content: "按 Enter 键上传到服务器";
+      content: "点击此处上传到服务器";
     }
     &-progress {
       position: absolute;
