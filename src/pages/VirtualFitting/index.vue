@@ -27,6 +27,29 @@
         @tap.native="Upload"
       ></el-progress>
     </div>
+
+      <el-dialog :visible.sync="dialogVisible">
+          <el-carousel
+                  v-if="createImage.length !== 1"
+                  :initial-index="0"
+                  height="500px"
+                  width="80%"
+          >
+              <el-carousel-item v-for="(item, index) in createImage" :key="index">
+                  <ImageWithMethod :src="item" :options="{ isDownload: true }"></ImageWithMethod>
+              </el-carousel-item>
+          </el-carousel>
+          <ImageWithMethod
+                  v-else-if="createImage.length === 1"
+                  :src="createImage[0]"
+                  :options="{ isDownload: true }"
+          ></ImageWithMethod>
+          <ImageWithMethod
+                  v-else
+                  :src="createImage"
+                  :options="{ isDownload: true }"
+          />
+      </el-dialog>
   </el-main>
 </template>
 
@@ -34,6 +57,7 @@
 import UploadPhoto from "@/components/UploadPhoto.vue";
 import Carousel from "@/components/Carousel.vue";
 import axios from "axios";
+import ImageWithMethod from "@/components/ImageWithMethod.vue";
 export default {
   data() {
     return {
@@ -42,6 +66,7 @@ export default {
         person: {},
         clothes: [],
       },
+        dialogVisible: false,
       createImage: "",
       isloading: false,
       isUpload: false,
@@ -87,6 +112,7 @@ export default {
     };
   },
   components: {
+      ImageWithMethod,
     UploadPhoto,
     Carousel,
   },
@@ -134,10 +160,9 @@ export default {
       if (this.isPay) this.dialogVisible = true;
 
       let payload = `${filelist.person.file.name}|${filelist.clothes[0].file.name}`
-      ws.send(payload)
-
       if (this.isloading) return;
       this.isloading = true;
+      ws.send(payload)
       return;
       const formData = new FormData();
       formData.append(
@@ -242,19 +267,13 @@ export default {
 
     ws.onmessage = evt => {
       let data = evt.data;
-      // console.log(data)
-      let img = new Image();
+      console.log(data)
       let fileReader = new FileReader();
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
-
       fileReader.onload = (e) => {
-        img.src = e.target.result;
-        img.onload = () => {
-          ctx.drawImage(img, 0, 0)
-          this.createImage = canvas.toDataURL("image/png");
+          this.createImage = [e.target.result]
+          this.dialogVisible=true;
         }
-      }
+
       fileReader.readAsDataURL(data)
       this.isloading = false;
     }
