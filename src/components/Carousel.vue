@@ -7,7 +7,7 @@
         :key="index"
         :class="{ focus: focusIndex === index }"
       >
-        <img :src="require('@/assets/' + item.url)" />
+        <img :src="require('@/assets/images/' + item.url)" />
       </swiper-slide>
     </swiper>
     <swiper
@@ -21,7 +21,7 @@
         :key="index"
         :class="{ focus: focusIndex === index }"
       >
-        <img :src="require('@/assets/' + item.url)" />
+        <img :src="require('@/assets/images/' + item.url)" />
       </swiper-slide>
     </swiper>
   </div>
