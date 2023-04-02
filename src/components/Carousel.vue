@@ -39,7 +39,7 @@ export default {
       isloading: false,
       navShow: false,
       options: {
-        slidesPerView: 2,
+        slidesPerView: 4,
         grabCursor: true,
         centeredSlides: true,
         observer: true,
@@ -61,7 +61,7 @@ export default {
         centeredSlides: true,
         observer: true,
         observeParents: true,
-        slidesPerView: 6,
+        slidesPerView: 8,
         touchRatio: 0.1,
         slideToClickedSlide: true,
         on: {
@@ -89,47 +89,10 @@ export default {
       if (this.isAbleMove) this.swiper.autoplay.start();
       this.navShow = false;
     },
-    // h5BlobUrlToBlobObj(url) {
-    //   return new Promise((resolve, reject) => {
-    //     const xhr = new XMLHttpRequest();
-    //     xhr.open("GET", url, true);
-    //     xhr.responseType = "blob";
-    //     xhr.onload = function onload(e) {
-    //       if (this.status === 200) {
-    //         const Blob = this.response;
-    //         resolve(Blob);
-    //       } else {
-    //         reject(this.status, e);
-    //       }
-    //     };
-    //     xhr.send();
-    //   });
-    // },
     async focus(e, that) {
       let clickedIndex = that.clickedIndex;
       if (clickedIndex === undefined) return;
       if (vm.focusIndex !== clickedIndex) {
-        // let image = new Image();
-        // image.src = e.target.currentSrc;
-        // if (!image.src) return;
-        // this.isloading = true;
-        // image.onload = () => {
-        //   const xhr = new XMLHttpRequest();
-        //   xhr.open("GET", image.src, true);
-        //   xhr.responseType = "blob";
-        //   xhr.send();
-        //   xhr.onload = async (e) => {
-        //     if (xhr.status == 200) {
-        //       await this.$bus.$emit("uploadPhoto", this.type, {
-        //         url: await this.h5BlobUrlToBlobObj(
-        //           URL.createObjectURL(xhr.response)
-        //         ),
-        //         filename: +new Date(),
-        //       });
-        //       this.isloading = false;
-        //     }
-        //   };
-        // };
         vm.focusIndex = clickedIndex;
         vm.isAbleMove = false;
         vm.swiper.autoplay.stop();
@@ -171,17 +134,20 @@ export default {
       display: flex;
       justify-content: center;
       align-items: center;
-      transform: scale(0.6);
+      transform: scale(0.8);
+      opacity: 0.5;
       transition: 0.5s all;
       img {
         width: 100%;
         height: 100%;
         object-fit: cover;
+        border-radius: @margin;
       }
       &-active {
         width: 100%;
         height: 100%;
         transform: scale(1);
+        opacity: 1;
       }
     }
     &.gallery-thumbs {

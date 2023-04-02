@@ -110,6 +110,7 @@ export default {
   },
   beforeDestroy() {
     clearInterval(timer);
+    video.srcObject.getTracks()[0].stop();
   },
   created() {
     this.$bus.$on("uploadPhoto", (type, obj) => {

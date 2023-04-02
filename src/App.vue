@@ -50,6 +50,7 @@ export default {
 
   .el-dialog {
     margin-top: 10vh !important;
+    width: 35% !important;
 
     @media screen and (max-width: 768px) {
       width: 90%;

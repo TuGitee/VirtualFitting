@@ -29,8 +29,8 @@
 
       <el-collapse-item
         v-for="(historyItem, index) in historyList"
-        :key="index"
-        :name="historyItem.time"
+        :key="historyItem.id"
+        :name="historyItem.id"
       >
         <template slot="title">
           <h4 class="el-collapse-item__header-title">
@@ -58,7 +58,7 @@
       <swiper-slide
         class="swiper-slide"
         v-for="(item, index) in historyList"
-        :data-value="item.time"
+        :data-value="item.id"
         :key="index"
       >
         <img :src="formatUrl(item.url)" />
@@ -75,7 +75,7 @@ export default {
     return {
       searchText: "",
       activeIndex: [],
-      historyList: JSON.parse(localStorage.getItem("history")),
+      historyList: JSON.parse(localStorage.getItem("history"))||[],
       swiperOptionThumbs: {
         direction: "vertical",
         mousewheel: true,
@@ -140,7 +140,7 @@ export default {
       if (this.searchText.trim() === "") return;
       this.historyList.filter((item) => {
         if (item.time.includes(this.searchText)) {
-          this.activeIndex.push(item.time);
+          this.activeIndex.push(item.id);
         }
       });
       this.scrollTo();
@@ -160,7 +160,7 @@ export default {
       let clickedIndex = that.clickedIndex;
       if (!that.clickedSlide) return;
       if (clickedIndex === undefined) return;
-      this.activeIndex = that.clickedSlide?.getAttribute("data-value");
+      this.activeIndex=Number(that.clickedSlide.getAttribute("data-value"));
       this.scrollTo();
 
       if (vm.focusIndex !== clickedIndex) {

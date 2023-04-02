@@ -23,6 +23,7 @@
       class="image-method-box__actions"
       :class="{ hover: !disabled && url }"
       v-if="!disabled && url"
+      :style="{ fontSize }"
     >
       <span
         class="image-method-box__actions-preview"
@@ -97,6 +98,15 @@ export default {
         return require("@/assets/" + this.src);
       }
     },
+    fontSize() {
+      let font = 0;
+      for (let i in this.options) {
+        if (this.options[i]) {
+          font += 16;
+        }
+      }
+      return font;
+    },
   },
   methods: {
     handlePictureCardPreview() {
@@ -143,6 +153,8 @@ export default {
   justify-content: center;
   align-items: center;
   transition: all 0.5s;
+  height: 100%;
+  width: 100%;
   &__image {
     height: 100%;
     width: 100%;

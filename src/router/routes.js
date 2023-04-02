@@ -30,8 +30,17 @@ export default [
         }
     },
     {
+        name: "Start",
+        path: "/start",
+        component: () => import('@/pages/Start'),
+        meta: {
+            isShow: false,
+            title: '首页'
+        }
+    },
+    {
         path: '/',
-        redirect: '/virtual-fitting',
+        redirect: '/start',
         meta: {
             isShow: false
         }
