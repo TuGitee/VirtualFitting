@@ -61,7 +61,7 @@
         :data-value="item.time"
         :key="index"
       >
-        <img :src="require('@/assets/' + item.url)" />
+        <img :src="formatUrl(item.url)" />
       </swiper-slide>
     </swiper>
   </el-main>
@@ -75,19 +75,7 @@ export default {
     return {
       searchText: "",
       activeIndex: [],
-      historyList: JSON.parse(localStorage.getItem("history")) || [
-        { time: "2022-9-3", url: "images/1.png" },
-        { time: "2022-9-23", url: "images/2.png" },
-        { time: "2022-10-3", url: "images/3.png" },
-        { time: "2022-12-3", url: "images/4.png" },
-        { time: "2023-1-1", url: "images/5.png" },
-        { time: "2023-1-3", url: "images/6.png" },
-        { time: "2023-2-2", url: "images/7.png" },
-        { time: "2023-2-4", url: "images/8.png" },
-        { time: "2023-3-3", url: "images/9.png" },
-        { time: "2023-3-8", url: "images/Alipay.png" },
-        { time: "2023-3-29", url: "images/WeChatPay.png" },
-      ],
+      historyList: JSON.parse(localStorage.getItem("history")),
       swiperOptionThumbs: {
         direction: "vertical",
         mousewheel: true,
@@ -95,7 +83,7 @@ export default {
         centeredSlides: true,
         observer: true,
         observeParents: true,
-        slidesPerView: 5,
+        slidesPerView: 4,
         touchRatio: 0.1,
         slideToClickedSlide: true,
         autoplay: {
@@ -119,6 +107,27 @@ export default {
     ImageWithMethod,
   },
   methods: {
+    formatUrl(url) {
+      if (!url) return null;
+      else if (url.includes("base64")) {
+        return URL.createObjectURL(this.dataURLtoBlob(url));
+      } else if (url.includes("http")) {
+        return url;
+      } else {
+        return require("@/assets/" + url);
+      }
+    },
+    dataURLtoBlob(dataurl) {
+      let arr = dataurl.split(","),
+        mime = arr[0].match(/:(.*?);/)[1],
+        bstr = atob(arr[1]),
+        n = bstr.length,
+        u8arr = new Uint8Array(n);
+      while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+      }
+      return new Blob([u8arr], { type: mime });
+    },
     goUpload() {
       this.$router.push("/virtual-fitting");
     },

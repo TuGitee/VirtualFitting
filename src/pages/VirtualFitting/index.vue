@@ -28,28 +28,31 @@
       ></el-progress>
     </div>
 
-      <el-dialog :visible.sync="dialogVisible">
-          <el-carousel
-                  v-if="createImage.length !== 1"
-                  :initial-index="0"
-                  height="500px"
-                  width="80%"
-          >
-              <el-carousel-item v-for="(item, index) in createImage" :key="index">
-                  <ImageWithMethod :src="item" :options="{ isDownload: true }"></ImageWithMethod>
-              </el-carousel-item>
-          </el-carousel>
+    <el-dialog :visible.sync="dialogVisible">
+      <el-carousel
+        v-if="typeof createImage !== 'string' && createImage.length !== 1"
+        :initial-index="0"
+        height="500px"
+        width="80%"
+      >
+        <el-carousel-item v-for="(item, index) in createImage" :key="index">
           <ImageWithMethod
-                  v-else-if="createImage.length === 1"
-                  :src="createImage[0]"
-                  :options="{ isDownload: true }"
+            :src="item"
+            :options="{ isDownload: true }"
           ></ImageWithMethod>
-          <ImageWithMethod
-                  v-else
-                  :src="createImage"
-                  :options="{ isDownload: true }"
-          />
-      </el-dialog>
+        </el-carousel-item>
+      </el-carousel>
+      <ImageWithMethod
+        v-else-if="typeof createImage !== 'string' && createImage.length === 1"
+        :src="createImage[0]"
+        :options="{ isDownload: true }"
+      ></ImageWithMethod>
+      <ImageWithMethod
+        v-else
+        :src="createImage"
+        :options="{ isDownload: true }"
+      />
+    </el-dialog>
   </el-main>
 </template>
 
@@ -66,11 +69,12 @@ export default {
         person: {},
         clothes: [],
       },
-        dialogVisible: false,
+      dialogVisible: false,
       createImage: "",
       isloading: false,
       isUpload: false,
       progress: 0,
+      timer: null,
       backgroundList: [
         {
           url: "background/1.jpg",
@@ -112,7 +116,7 @@ export default {
     };
   },
   components: {
-      ImageWithMethod,
+    ImageWithMethod,
     UploadPhoto,
     Carousel,
   },
@@ -149,7 +153,6 @@ export default {
     async submitUpload() {
       const { filelist } = this;
       const ws = this.ws;
-      console.log(filelist);
       if (!filelist.person.file) {
         this.$message.error("请上传人物图片（仅允许一张）");
         return;
@@ -159,87 +162,44 @@ export default {
       }
       if (this.isPay) this.dialogVisible = true;
 
-      let payload = `${filelist.person.file.name}|${filelist.clothes[0].file.name}`
+      let payload = `${filelist.person.file.name}|${filelist.clothes[0].file.name}`;
       if (this.isloading) return;
       this.isloading = true;
-      ws.send(payload)
-      return;
-      const formData = new FormData();
-      formData.append(
-        "personImage",
-        filelist.person.file,
-        filelist.person.name
-      );
-      filelist.clothes.forEach((item) => {
-        formData.append("clothesImage", item.file, item.name);
-      });
-      await axios
-        .post("/upload", formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        })
-        .then((res) => {
-          const canvas = document.createElement("canvas");
-          const ctx = canvas.getContext("2d");
-          const img = new Image();
-          img.src = JSON.parse(res).url;
-          const percentage = 2;
-          img.onload = () => {
-            canvas.width = img.width / percentage;
-            canvas.height = img.height / percentage;
-            ctx.drawImage(
-              img,
-              0,
-              0,
-              img.width / percentage,
-              img.height / percentage
-            );
-            this.createImage = canvas.toDataURL("image/png");
-
-            let msg = { url: this.createImage, time: this.formatTime() };
-            let length = JSON.stringify(msg).length;
-            try {
-              if (!localStorage.getItem("history")) {
-                localStorage.setItem("history", JSON.stringify([msg]));
-              } else {
-                localStorage.setItem(
-                  "history",
-                  JSON.stringify([
-                    msg,
-                    ...JSON.parse(localStorage.getItem("history")),
-                  ])
-                );
-              }
-            } catch (err) {
-              if (this.isChange) {
-                this.$message.warning(
-                  "历史记录达到上限！已替换距今最早的图片！"
-                );
-                let history = JSON.parse(localStorage.getItem("history"));
-                let item = history.pop();
-                while (JSON.stringify(item).length < length) {
-                  length -= JSON.stringify(item).length;
-                  item = history.pop();
-                }
-                history.unshift(msg);
-                localStorage.setItem("history", JSON.stringify(history));
-              } else
-                this.$message.warning(
-                  "历史记录达到上限！如需添加，请删除部分图片！"
-                );
-            }
-          };
-          this.$message.success("上传成功");
-        })
-        // eslint-disable-next-line no-unused-vars
-        .catch((err) => {
-          this.createImage = "";
-          this.$message.error("上传失败");
-        })
-        .finally(() => {
-          this.isloading = false;
-        });
+      ws.send(payload);
+      this.progress = 0;
+      this.timer = setInterval(() => {
+        this.progress +=
+          Math.random() > 0.5 ? Math.random() / filelist.clothes.length : 0;
+        if (this.progress >= 99 + Math.random()) {
+          clearInterval(this.timer);
+        }
+      }, 1000 / 60);
+    },
+    localStore(msg = { url: this.createImage, time: this.formatTime() }) {
+      let length = JSON.stringify(msg).length;
+      try {
+        if (!localStorage.getItem("history")) {
+          localStorage.setItem("history", JSON.stringify([msg]));
+        } else {
+          localStorage.setItem(
+            "history",
+            JSON.stringify([
+              msg,
+              ...JSON.parse(localStorage.getItem("history")),
+            ])
+          );
+        }
+      } catch (err) {
+        this.$message.warning("历史记录达到上限！已替换距今最早的图片！");
+        let history = JSON.parse(localStorage.getItem("history"));
+        let item = history.pop();
+        while (JSON.stringify(item).length < length) {
+          length -= JSON.stringify(item).length;
+          item = history.pop();
+        }
+        history.unshift(msg);
+        localStorage.setItem("history", JSON.stringify(history));
+      }
     },
   },
   mounted() {
@@ -250,33 +210,24 @@ export default {
     });
   },
   created() {
-    let timer = setInterval(() => {
-      this.progress += 0.1;
-      if (this.progress >= 100) {
-        clearInterval(timer);
-        this.progress = 100;
-      }
-    }, 1000 / 120);
-    // invoke("background", { keywords: "" }).then((res) => {
-    //   this.backgroundList = JSON.parse(res);
-    // });
-    let ws = this.ws
-    ws.onopen = evt => {
+    let ws = this.ws;
+    ws.onopen = (evt) => {
       console.log("Connection establied!");
-    }
+    };
 
-    ws.onmessage = evt => {
+    ws.onmessage = (evt) => {
       let data = evt.data;
-      console.log(data)
       let fileReader = new FileReader();
+      clearInterval(this.timer);
       fileReader.onload = (e) => {
-          this.createImage = [e.target.result]
-          this.dialogVisible=true;
-        }
-
-      fileReader.readAsDataURL(data)
+        this.progress = 100;
+        this.createImage = e.target.result;
+        this.dialogVisible = true;
+        this.localStore();
+      };
+      fileReader.readAsDataURL(data);
       this.isloading = false;
-    }
+    };
   },
 };
 </script>
