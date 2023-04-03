@@ -5,6 +5,7 @@
       class="main-title"
       title="点击进入"
       @wheel.native="handleWheel"
+      :style="backgroundStyle"
     >
       虚拟试衣</router-link
     >
@@ -28,27 +29,48 @@
 
 <script>
 export default {
+  data() {
+    return {
+      x: -50,
+      y: -50,
+      max: 0,
+      min: -100,
+      timer: null,
+    };
+  },
   methods: {
     handleWheel(e) {
-      let y = e.target.style.backgroundPositionY
-        ? parseInt(e.target.style.backgroundPositionY)
-        : -50;
-      let x = e.target.style.backgroundPositionX
-        ? parseInt(e.target.style.backgroundPositionX)
-        : -50;
       if (
-        (y <= -100 && e.deltaY > 0) ||
-        (y >= 0 && e.deltaY < 0) ||
-        (y < 0 && y > -100)
+        (this.y <= this.min && e.deltaY > 0) ||
+        (this.y >= this.max && e.deltaY < 0) ||
+        (this.y < this.max && this.y > this.min)
       ) {
-        y = y + (e.deltaY * Math.random()) / 10;
-        e.target.style.backgroundPositionY =
-          (y < 0 ? (y < -100 ? -100 : y) : 0) + "vh";
-        x = x - (e.deltaY * Math.random()) / 10;
-        e.target.style.backgroundPositionX =
-          (x < 0 ? (x < -100 ? -100 : x) : 0) + "vw";
+        this.y = this.formatAxias(this.y + (e.deltaY * Math.random()) / 10);
+        this.x = this.formatAxias(this.x - (e.deltaY * Math.random()) / 10);
       }
     },
+    formatAxias(n) {
+      return n < this.max ? (n < this.min ? this.min : n) : this.max;
+    },
+    animation() {
+      this.y = this.formatAxias(this.y + (Math.random() - 0.5));
+      this.x = this.formatAxias(this.x + (Math.random() - 0.5));
+    },
+  },
+  computed: {
+    backgroundStyle() {
+      return {
+        backgroundPosition: `${this.x}vw  ${this.y}vh`,
+      };
+    },
+  },
+  created() {
+    this.timer = setInterval(() => {
+      this.animation();
+    }, 1000 / 60);
+  },
+  beforeDestroy() {
+    clearInterval(this.timer);
   },
 };
 </script>
@@ -67,7 +89,7 @@ export default {
     left: 50%;
     top: 50%;
     filter: drop-shadow(0px 0px 10px #fffa);
-    background: url("@/assets/photo.png") no-repeat -50vw -50vh;
+    background: url("@/assets/bg.png") no-repeat -50vw -50vh;
     background-clip: text;
     background-size: 200vw 200vh;
     white-space: nowrap;
