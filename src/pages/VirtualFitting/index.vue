@@ -290,11 +290,7 @@ export default {
     };
 
     ws.onerror = (evt) => {
-      this.$message.error("上传失败！");
-      this.isloading = false;
-      setTimeout(() => {
-        this.progress = 0;
-      }, 1000);
+      this.$message.error("连接失败");
     };
 
     ws.onmessage = (evt) => {

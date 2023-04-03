@@ -1,6 +1,13 @@
 <template>
   <el-main class="main">
-    <router-link to="/virtual-fitting" class="main-title" title="点击进入">虚拟试衣</router-link>
+    <router-link
+      to="/virtual-fitting"
+      class="main-title"
+      title="点击进入"
+      @wheel.native="handleWheel"
+    >
+      虚拟试衣</router-link
+    >
     <div class="loader">
       <div>
         <div>
@@ -21,22 +28,27 @@
 
 <script>
 export default {
-  mounted() {
-    document.querySelector(".main-title").style.backgroundPositionY = "-300px";
-    document.querySelector(".main-title").addEventListener("wheel", (e) => {
+  methods: {
+    handleWheel(e) {
       let y = e.target.style.backgroundPositionY
         ? parseInt(e.target.style.backgroundPositionY)
-        : 0;
+        : -50;
+      let x = e.target.style.backgroundPositionX
+        ? parseInt(e.target.style.backgroundPositionX)
+        : -50;
       if (
-        (y <= -500 && e.deltaY > 0) ||
+        (y <= -100 && e.deltaY > 0) ||
         (y >= 0 && e.deltaY < 0) ||
-        (y < 0 && y > -500)
+        (y < 0 && y > -100)
       ) {
-        e.target.style.backgroundPositionY = y + e.deltaY + "px";
+        y = y + (e.deltaY * Math.random()) / 10;
+        e.target.style.backgroundPositionY =
+          (y < 0 ? (y < -100 ? -100 : y) : 0) + "vh";
+        x = x - (e.deltaY * Math.random()) / 10;
         e.target.style.backgroundPositionX =
-          e.deltaY * Math.random() + 70 + "px";
+          (x < 0 ? (x < -100 ? -100 : x) : 0) + "vw";
       }
-    });
+    },
   },
 };
 </script>
@@ -55,8 +67,10 @@ export default {
     left: 50%;
     top: 50%;
     filter: drop-shadow(0px 0px 10px #fffa);
-    background: url("@/assets/photo.png") no-repeat top left;
+    background: url("@/assets/photo.png") no-repeat -50vw -50vh;
     background-clip: text;
+    background-size: 200vw 200vh;
+    white-space: nowrap;
     color: transparent;
     transform: translate(-50%, -50%);
     font-size: 200px;
