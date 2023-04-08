@@ -50,6 +50,7 @@ export default {
       init();
     });
 
+
     function getUserMedia(constraints, success, error) {
       if (navigator.mediaDevices.getUserMedia) {
         navigator.mediaDevices
@@ -78,7 +79,7 @@ export default {
       ) {
         getUserMedia({ video: { width, height } }, success, error);
       } else {
-        alert("不支持");
+         that.$message.error("不支持摄像头！");
       }
     }
 
@@ -90,27 +91,27 @@ export default {
         video.play();
         timer = setInterval(() => {
           ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-          if (!that.clothes.file) return;
-          canvas.toBlob((blob) => {
-            const file = new File([blob], +new Date(), {
-              type: "image/png",
-            });
-            // 发送请求
-            const formData = new FormData();
-            formData.append("personImage", file);
-            formData.append("clothesImage", that.clothes);
-          });
+          // if (!that.clothes.file) return;
+          // canvas.toBlob((blob) => {
+          //   const file = new File([blob], +new Date(), {
+          //     type: "image/png",
+          //   });
+          //   // 发送请求
+          //   const formData = new FormData();
+          //   formData.append("personImage", file);
+          //   formData.append("clothesImage", that.clothes);
+          // });
         }, 1000 / 60);
       };
     }
 
     function error(error) {
-      console.log("访问用户媒体失败");
+      that.$message.error("访问用户媒体失败");
     }
   },
   beforeDestroy() {
     clearInterval(timer);
-    video.srcObject.getTracks()[0].stop();
+    video.srcObject?.getTracks()[0].stop();
   },
   created() {
     this.$bus.$on("uploadPhoto", (type, obj) => {
@@ -135,14 +136,18 @@ export default {
     height: 100%;
     width: 100%;
     min-width: 200px;
+    border-radius: @margin;
     &-canvas {
       flex: 1;
       overflow: hidden;
       border-radius: @margin;
       height: 100%;
       width: 100%;
+      display: flex;
+      justify-content: center;
       #try-on {
         background-color: @background;
+        border-radius: @margin;
         transform: rotateY(180deg);
       }
     }

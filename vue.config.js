@@ -3,16 +3,7 @@ const path = require('path')
 module.exports = defineConfig({
   transpileDependencies: true,
   lintOnSave: false,
-  devServer: {
-    proxy: {
-      '/api': {
-        target: 'http://localhost:34000/api',
-        changeOrigin: true,
-        pathRewrite: {
-          '^/api': ''
-        }
-      }
-    }
+  devServer:{
   },
   pluginOptions: {
     'style-resources-loader': {

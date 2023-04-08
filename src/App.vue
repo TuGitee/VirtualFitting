@@ -12,6 +12,16 @@ export default {
   components: {
     HeaderBar,
   },
+  mounted() {
+    this.$ws.onopen = (evt) => {
+      console.log("Connection establied!");
+      // 发送post请求开始训练模型
+      this.$axios.post('')
+    };
+    this.$ws.onerror = (evt) => {
+      this.$message.error("连接失败");
+    };
+  },
 };
 </script>
 
@@ -50,11 +60,9 @@ export default {
 
   .el-dialog {
     margin-top: 10vh !important;
-    width: 35% !important;
 
     @media screen and (max-width: 768px) {
-      width: 90%;
-      margin-top: 15vh !important;
+      width: 80% !important;
     }
   }
 

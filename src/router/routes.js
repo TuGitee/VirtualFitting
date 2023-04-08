@@ -30,6 +30,16 @@ export default [
         }
     },
     {
+        name: "MaybeLike",
+        path: "/maybe-like",
+        component: () => import('@/pages/MaybeLike'),
+        meta: {
+            isShow: true,
+            icon: 'el-icon-star-off',
+            title: '猜你喜欢'
+        }
+    },
+    {
         name: "Start",
         path: "/start",
         component: () => import('@/pages/Start'),

@@ -27,7 +27,7 @@
     >
       <span
         class="image-method-box__actions-preview"
-        @click="handlePictureCardPreview()"
+        @click.stop="handlePictureCardPreview()"
         v-if="url && options.isPreview"
       >
         <i class="el-icon-zoom-in"></i>
@@ -46,6 +46,15 @@
       >
         <i class="el-icon-delete"></i>
       </span>
+      <span
+        class="image-method-box__actions-delete"
+        @click="handleJump(index)"
+        v-if="url && href"
+      >
+        <a :href="href" target="_blank" title="点击跳转网购页面">
+          <i class="el-icon-link"></i>
+        </a>
+      </span>
     </div>
     <el-dialog :visible.sync="dialogVisible">
       <img width="100%" :src="url" alt="" />
@@ -54,6 +63,7 @@
 </template>
 
 <script>
+import { dataURLtoBlob } from "@/utils/index.js";
 let vm = null;
 export default {
   name: "ImageWithMethod",
@@ -64,6 +74,9 @@ export default {
     src: {
       type: String,
       default: "",
+    },
+    href: {
+      type: String,
     },
     options: {
       type: Object,
@@ -92,20 +105,26 @@ export default {
       if (!this.src) return null;
       else if (this.src.includes("base64")) {
         return URL.createObjectURL(this.dataURLtoBlob(this.src));
-      } else if (this.src.includes("http")) {
+      } else if (this.src.includes("blob")) {
         return this.src;
+      } else if (this.src.includes("http")) {
+        this.$axios.get(this.src, {
+          responseType: "blob",
+        }).then((res) => {
+          this.$emit('change',this.index,URL.createObjectURL(res.data))
+        });
       } else {
         return require("@/assets/" + this.src);
       }
     },
     fontSize() {
-      let font = 0;
+      let font = 40;
       for (let i in this.options) {
         if (this.options[i]) {
-          font += 16;
+          font -= 12;
         }
       }
-      return font;
+      return font + "px";
     },
   },
   methods: {
@@ -119,23 +138,13 @@ export default {
       a.href = this.url;
       a.download = +new Date() + "_图片.jpg";
       a.click();
+      a.remove();
     },
     handleRemove(index) {
       this.$emit("handleRemove", index);
     },
     handleHover() {
       this.disabled = !this.disabled;
-    },
-    dataURLtoBlob(dataurl) {
-      let arr = dataurl.split(","),
-        mime = arr[0].match(/:(.*?);/)[1],
-        bstr = atob(arr[1]),
-        n = bstr.length,
-        u8arr = new Uint8Array(n);
-      while (n--) {
-        u8arr[n] = bstr.charCodeAt(n);
-      }
-      return new Blob([u8arr], { type: mime });
     },
   },
   created() {
@@ -188,6 +197,9 @@ export default {
     }
     & span:last-child {
       margin-right: 0;
+    }
+    a {
+      color: @white;
     }
   }
   .hover {

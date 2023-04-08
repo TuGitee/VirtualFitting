@@ -286,7 +286,7 @@ export default {
       content: "";
       position: absolute;
       top: 0;
-      left: -50%;
+      left: -100%;
       width: 200px;
       transform: skew(-20deg);
       height: 100%;
@@ -338,13 +338,9 @@ export default {
       }
     }
     &-warning {
-      width: 100%;
-      height: 40vh;
-      margin-bottom: @margin;
-      border-radius: 0;
-      &::after {
-        display: none;
-      }
+      width: 80%;
+      height: 50%;
+      border-radius: @margin;
     }
     & .gallery-thumbs {
       display: none;

@@ -30,6 +30,14 @@
     </div>
 
     <el-dialog :visible.sync="dialogVisible" @close="isBarrage = false">
+      <template
+        #title
+        v-if="typeof createImage !== 'string' && createImage.length !== 1"
+      >
+        <el-button @click.once="downloadAll" type="primary"
+          >批量 <i class="el-icon-download"></i
+        ></el-button>
+      </template>
       <el-carousel
         v-if="typeof createImage !== 'string' && createImage.length !== 1"
         :initial-index="0"
@@ -64,10 +72,12 @@ import UploadPhoto from "@/components/UploadPhoto.vue";
 import Carousel from "@/components/Carousel.vue";
 import axios from "axios";
 import ImageWithMethod from "@/components/ImageWithMethod.vue";
+import JSZip from "jszip";
+import {dataURLtoBlob} from "@/utils/index.js";
+
 export default {
   data() {
     return {
-      ws: new WebSocket("ws://192.168.1.115:8000/ws"),
       filelist: {
         person: {},
         clothes: [],
@@ -167,6 +177,21 @@ export default {
     Carousel,
   },
   methods: {
+    async downloadAll() {
+      var zip = new JSZip();
+      for (let url of this.createImage) {
+        if (url.includes("base64"))
+          zip.file(+new Date() + ".jpg", this.dataURLtoBlob(url));
+        else zip.file(+new Date() + ".jpg", url);
+      }
+      zip.generateAsync({ type: "blob" }).then((content) => {
+        let url = URL.createObjectURL(content);
+        let a = document.createElement("a");
+        a.href = url;
+        a.download = +new Date() + ".zip";
+        a.click();
+      });
+    },
     getBarrage() {
       this.isBarrage = true;
       let index = Math.floor(Math.random() * this.supportWord.length);
@@ -185,7 +210,7 @@ export default {
         this.index++;
         setTimeout(() => {
           this.writeText(index);
-        }, 100);
+        }, 500 * Math.random());
       }
     },
     formatPercent(val) {
@@ -219,7 +244,6 @@ export default {
     },
     async submitUpload() {
       const { filelist } = this;
-      const ws = this.ws;
       if (!filelist.person.file) {
         this.$message.error("请上传人物图片（仅允许一张）");
         return;
@@ -228,17 +252,27 @@ export default {
         return;
       }
 
-      let payload = `${filelist.person.file.name}|`;
-      let tmp = [];
-      for (let clo of filelist.clothes) {
-        tmp.push(clo.file.name);
+      const fileReader = new FileReader();
+      const files = [
+        filelist.person.file,
+        ...filelist.clothes.map((item) => item.file),
+      ];
+
+      for (let key in files) {
+        let res = await new Promise((resolve) => {
+          fileReader.readAsDataURL(files[key]);
+          fileReader.onload = () => {
+            resolve(fileReader.result);
+          };
+        });
+        files[key] = res;
       }
-      payload += tmp.join(",");
-      console.log(payload);
+      console.log(files);
+
       if (this.isloading) return;
       this.isloading = true;
       this.createImage = [];
-      ws.send(payload);
+      this.$ws.send(files.join("$"));
       this.timer = setInterval(() => {
         this.progress +=
           Math.random() > 0.5 ? Math.random() / filelist.clothes.length : 0;
@@ -284,16 +318,7 @@ export default {
     });
   },
   created() {
-    let ws = this.ws;
-    ws.onopen = (evt) => {
-      console.log("Connection establied!");
-    };
-
-    ws.onerror = (evt) => {
-      this.$message.error("连接失败");
-    };
-
-    ws.onmessage = (evt) => {
+    this.$ws.onmessage = (evt) => {
       let data = evt.data;
       let fileReader = new FileReader();
       clearInterval(this.timer);
@@ -403,7 +428,7 @@ export default {
   }
 
   /deep/ .el-carousel__container {
-    height: 700px !important;
+    height: 70vh !important;
   }
 
   /deep/ .white-space {
@@ -411,12 +436,25 @@ export default {
     width: 10px;
     margin-left: 5px;
     height: 20px;
-    background-color: #fffa;
+    background-color: #fff;
     position: absolute;
     bottom: 30px;
+    animation: opacity 1s infinite;
   }
 
-  .el-dialog .el-button {
+  @keyframes opacity {
+    0% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  .el-dialog .el-dialog__body .el-button {
     margin-top: 20px;
   }
 
