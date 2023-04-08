@@ -6,6 +6,7 @@
         class="main-title-text"
         title="点击进入"
         :style="backgroundStyle"
+        data-text="虚拟试衣"
       >
         虚拟试衣</router-link
       >
@@ -119,6 +120,8 @@ export default {
       font-weight: 900;
       filter: blur(10px);
       animation: hunhe 3s forwards;
+      position: relative;
+      transition: all .5s;
       @keyframes hunhe {
         0% {
           filter: blur(10px);
@@ -129,6 +132,224 @@ export default {
           filter: blur(0px);
           letter-spacing: 40px;
           font-size: 200px;
+        }
+      }
+
+      &:hover::before {
+        transition: all .5s;
+        content: attr(data-text);
+        position: absolute;
+        left: -2px;
+        top: 2px;
+        color: transparent;
+        width: 100%;
+        height: 100%;
+        font-size: 200px;
+        background: url("@/assets/bg.png") #f00;
+        background-blend-mode: darken;
+        background-clip: text;
+        letter-spacing: 40px;
+        font-weight: 900;
+        filter: contrast(20);
+        animation: animation-before 3s forwards infinite;
+      }
+      &:hover::after {
+        transition: all .5s;
+        content: attr(data-text);
+        position: absolute;
+        left: 2px;
+        top: -2px;
+        width: 100%;
+        height: 100%;
+        background: url("@/assets/bg.png") #0ff;
+        background-blend-mode: lighten;
+        background-clip: text;
+        filter: contrast(20);
+        color: transparent;
+        font-size: 200px;
+        letter-spacing: 40px;
+        font-weight: 900;
+        animation: animation-after 3s forwards infinite;
+      }
+
+      @keyframes animation-before {
+        0% {
+          left: 2px;
+          clip-path: inset(0 0 0 0);
+        }
+
+        5% {
+          clip-path: inset(0.8em 0 0.4em 0);
+        }
+
+        10% {
+          clip-path: inset(0.4em 0 0.8em 0);
+        }
+
+        15% {
+          clip-path: inset(0.1em 0 1em 0);
+        }
+
+        20% {
+          clip-path: inset(0.3em 0 0.6em 0);
+        }
+
+        25% {
+          left: -4px;
+          clip-path: inset(0.6em 0 0.3em 0);
+        }
+
+        30% {
+          clip-path: inset(0.8em 0 0.5em 0);
+        }
+
+        35% {
+          clip-path: inset(1em 0 0.1em 0);
+        }
+
+        40% {
+          clip-path: inset(0.7em 0 0.35em 0);
+        }
+
+        45% {
+          clip-path: inset(0.5em 0 0.2em 0);
+        }
+
+        50% {
+          left: 6px;
+          clip-path: inset(0.2em 0 0.5em 0);
+        }
+
+        55% {
+          clip-path: inset(0.35em 0 0.7em 0);
+        }
+
+        60% {
+          clip-path: inset(0.1em 0 0.9em 0);
+        }
+
+        65% {
+          clip-path: inset(0.8em 0 0.46em 0);
+        }
+
+        70% {
+          clip-path: inset(0.66em 0 0.33em 0);
+        }
+
+        75% {
+          left: 4px;
+          clip-path: inset(0.48em 0 0.23em 0);
+        }
+
+        80% {
+          clip-path: inset(0.23em 0 0.48em 0);
+        }
+
+        85% {
+          clip-path: inset(0.39em 0 0.79em 0);
+        }
+
+        90% {
+          clip-path: inset(0.33em 0 0.66em 0);
+        }
+
+        95% {
+          clip-path: inset(1em 0 0.3em 0);
+        }
+
+        100% {
+          left: -2px;
+          clip-path: inset(0.62em 0 0.29em 0);
+        }
+      }
+      @keyframes animation-after {
+        0% {
+          left: -2px;
+          clip-path: inset(0 0 0 0);
+        }
+
+        5% {
+          clip-path: inset(0.4em 0 0.8em 0);
+        }
+
+        10% {
+          clip-path: inset(0.8em 0 0.4em 0);
+        }
+
+        15% {
+          clip-path: inset(1em 0 0.1em 0);
+        }
+
+        20% {
+          clip-path: inset(0.6em 0 0.3em 0);
+        }
+
+        25% {
+          left: 4px;
+          clip-path: inset(0.3em 0 0.6em 0);
+        }
+
+        30% {
+          clip-path: inset(0.5em 0 0.8em 0);
+        }
+
+        35% {
+          clip-path: inset(0.1em 0 1em 0);
+        }
+
+        40% {
+          clip-path: inset(0.35em 0 0.7em 0);
+        }
+
+        45% {
+          clip-path: inset(0.2em 0 0.5em 0);
+        }
+
+        50% {
+          left: -6px;
+          clip-path: inset(0.5em 0 0.2em 0);
+        }
+
+        55% {
+          clip-path: inset(0.7em 0 0.35em 0);
+        }
+
+        60% {
+          clip-path: inset(0.9em 0 0.1em 0);
+        }
+
+        65% {
+          clip-path: inset(0.46em 0 0.8em 0);
+        }
+
+        70% {
+          clip-path: inset(0.3em 0 0.66em 0);
+        }
+
+        75% {
+          left: 4px;
+          clip-path: inset(0.23em 0 0.48em 0);
+        }
+
+        80% {
+          clip-path: inset(0.48em 0 0.23em 0);
+        }
+
+        85% {
+          clip-path: inset(0.79em 0 0.39em 0);
+        }
+
+        90% {
+          clip-path: inset(0.66em 0 0.33em 0);
+        }
+
+        95% {
+          clip-path: inset(0.3em 0 1em 0);
+        }
+
+        100% {
+          left: -2px;
+          clip-path: inset(0.29em 0 0.62em 0);
         }
       }
     }
