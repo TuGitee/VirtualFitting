@@ -244,7 +244,7 @@ export default {
   position: relative;
   display: flex;
   flex-direction: column;
-  color: @white;
+  color: @font;
 
   .search-input {
     height: 40px;
@@ -257,10 +257,14 @@ export default {
       background-color: transparent;
       height: 100%;
       border: none;
-      color: @white;
+      color: @font;
+      &::-webkit-input-placeholder{
+        color: @font-lightest;
+      }
     }
     /deep/ .el-input-group__append {
       background-color: #fff9;
+      color: @font;
       border: none;
       border-radius: @margin;
     }

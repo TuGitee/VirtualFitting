@@ -104,7 +104,7 @@ export default {
     url() {
       if (!this.src) return null;
       else if (this.src.includes("base64")) {
-        return URL.createObjectURL(this.dataURLtoBlob(this.src));
+        return URL.createObjectURL(dataURLtoBlob(this.src));
       } else if (this.src.includes("blob")) {
         return this.src;
       } else if (this.src.includes("http")) {
@@ -113,18 +113,19 @@ export default {
         }).then((res) => {
           this.$emit('change',this.index,URL.createObjectURL(res.data))
         });
+        return this.src;
       } else {
         return require("@/assets/" + this.src);
       }
     },
     fontSize() {
-      let font = 40;
+      let font = 10;
       for (let i in this.options) {
         if (this.options[i]) {
-          font -= 12;
+          font -= 4/Number(i);
         }
       }
-      return font + "px";
+      return font + "em";
     },
   },
   methods: {

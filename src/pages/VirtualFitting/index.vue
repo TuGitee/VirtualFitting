@@ -14,18 +14,16 @@
         :multiple="type === 'clothes'"
         class="virtual-fitting-photo-upload"
       />
-    </div>
-
-    <div class="virtual-fitting-upload">
       <el-progress
-        class="virtual-fitting-upload-progress"
+        class="virtual-fitting-photo-progress"
         ref="progress"
-        :text-inside="true"
-        :stroke-width="26"
+        :stroke-width="24"
         :percentage="progress"
         :format="formatPercent"
+        :color="colors"
         @click.native="Upload"
         @tap.native="Upload"
+        type="circle"
       ></el-progress>
     </div>
 
@@ -47,7 +45,9 @@
         <el-carousel-item v-for="(item, index) in createImage" :key="index">
           <ImageWithMethod
             :src="item"
+            :index="index"
             :options="{ isDownload: true }"
+            @change="handleChange"
           ></ImageWithMethod>
         </el-carousel-item>
       </el-carousel>
@@ -55,11 +55,13 @@
         v-else-if="typeof createImage !== 'string' && createImage.length === 1"
         :src="createImage[0]"
         :options="{ isDownload: true }"
+        @change="handleChangeSingle"
       ></ImageWithMethod>
       <ImageWithMethod
         v-else
         :src="createImage"
         :options="{ isDownload: true }"
+        @change="handleChangeSingle"
       />
       <div class="barrage" v-if="isBarrage" v-html="text"></div>
       <el-button @click="getBarrage" v-if="!isBarrage">生成评价</el-button>
@@ -73,7 +75,7 @@ import Carousel from "@/components/Carousel.vue";
 import axios from "axios";
 import ImageWithMethod from "@/components/ImageWithMethod.vue";
 import JSZip from "jszip";
-import {dataURLtoBlob} from "@/utils/index.js";
+import { dataURLtoBlob } from "@/utils/index.js";
 
 export default {
   data() {
@@ -90,6 +92,13 @@ export default {
       isloading: false,
       isUpload: false,
       progress: 0,
+      colors: [
+        { color: "#f56c6c", percentage: 20 },
+        { color: "#e6a23c", percentage: 40 },
+        { color: "#5cb87a", percentage: 60 },
+        { color: "#1989fa", percentage: 80 },
+        { color: "#6f7ad3", percentage: 100 },
+      ],
       timer: null,
       backgroundList: [
         {
@@ -177,12 +186,22 @@ export default {
     Carousel,
   },
   methods: {
+    handleChange(index, url) {
+      this.createImage[index] = url;
+    },
+    handleChangeSingle(index, url) {
+      this.createImage[0] = url;
+    },
     async downloadAll() {
       var zip = new JSZip();
       for (let url of this.createImage) {
         if (url.includes("base64"))
-          zip.file(+new Date() + ".jpg", this.dataURLtoBlob(url));
-        else zip.file(+new Date() + ".jpg", url);
+          zip.file(+new Date() + ".jpg", dataURLtoBlob(url));
+        else {
+          let res = await fetch(url);
+          let blob = await res.blob();
+          zip.file(+new Date() + ".jpg", blob);
+        }
       }
       zip.generateAsync({ type: "blob" }).then((content) => {
         let url = URL.createObjectURL(content);
@@ -274,8 +293,7 @@ export default {
       this.createImage = [];
       this.$ws.send(files.join("$"));
       this.timer = setInterval(() => {
-        this.progress +=
-          Math.random() > 0.5 ? Math.random() / filelist.clothes.length : 0;
+        this.progress += Math.random() > 0.5 ? Math.random() : 0;
         if (this.progress >= 98 + Math.random()) {
           clearInterval(this.timer);
         }
@@ -319,25 +337,21 @@ export default {
   },
   created() {
     this.$ws.onmessage = (evt) => {
+      const baseURL = "http://192.168.1.115:8000/static/";
       let data = evt.data;
-      let fileReader = new FileReader();
+      let url = baseURL + data;
       clearInterval(this.timer);
-      fileReader.onload = (e) => {
-        this.progress = 100;
-        this.dialogVisible = true;
-        this.createImage.push(e.target.result);
-        this.localStore({
-          url: e.target.result,
-          time: this.formatTime(),
-          id: +new Date(),
-        });
-        this.dialogVisible = true;
-        setTimeout(() => {
-          this.progress = 0;
-        }, 1000);
-      };
-
-      fileReader.readAsDataURL(data);
+      this.progress = 100;
+      this.dialogVisible = true;
+      this.createImage.push(url);
+      this.localStore({
+        url,
+        time: this.formatTime(),
+        id: +new Date(),
+      });
+      setTimeout(() => {
+        this.progress = 0;
+      }, 1000);
       this.isloading = false;
     };
   },
@@ -362,41 +376,32 @@ export default {
     justify-content: space-between;
     align-items: center;
     height: 40%;
-    margin-bottom: @margin;
+    gap: @margin;
 
     &-upload {
+      background-color: @background;
+      width: 100%;
+      height: 100%;
+      border-radius: @margin;
+      padding: @margin;
+
       &:last-child:not(:first-child) {
         margin-left: @margin;
       }
     }
-  }
-
-  &-upload {
-    width: 100%;
-    height: 26px;
-    line-height: 26px;
-    border: none;
-    background-color: @background;
-    border-radius: @margin;
-    font-weight: 700;
-    color: #e4b0f4;
-    cursor: pointer;
-    transition: all 0.3s;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 0 20px -10px #e4b0f4;
-
-    &::after {
-      content: "点击此处上传到服务器";
-    }
     &-progress {
-      position: absolute;
-      top: 0;
+      background-color: @background;
+      border-radius: @margin;
+      cursor: pointer;
       width: 100%;
       height: 100%;
       border: none;
       border-radius: @margin;
       transition: all 0.3s;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
       /deep/ .el-progress-bar__outer {
         background: transparent !important;
       }

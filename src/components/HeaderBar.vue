@@ -1,6 +1,12 @@
 <template>
   <div>
     <el-menu :default-active="$route.path" router class="el-menu-vertical-demo">
+      <el-menu-item class="el-menu-vertical-demo-title">
+        <router-link to="/">
+          <img src="@/assets/logo.png" alt="虚拟试衣logo" />
+        </router-link>
+      </el-menu-item>
+
       <el-menu-item
         v-for="(item, index) in navList"
         :key="index"
@@ -68,6 +74,19 @@ export default {
 </script>
 
 <style lang="less" scoped>
+.el-menu-vertical-demo {
+  &-title {
+    height: fit-content;
+    text-align: center;
+    font-size: 20px;
+    font-weight: 600;
+    border: none !important;
+    padding: 20px 30px;
+    img {
+      width: 100%;
+    }
+  }
+}
 .el-menu {
   color: @black;
   text-align: center;
@@ -78,24 +97,24 @@ export default {
   width: @nav-width;
   height: calc(100% - @margin * 2);
   background-color: @background;
-  color: @white;
+  color: @black;
   border-radius: @margin;
-  box-shadow: 0 0 20px -10px rgba(0, 0, 0, 0.2);
   margin: @margin;
   border: none;
+  box-shadow: 0 0 20px -5px #1c1f3e;
 
   .give-me-money {
     position: absolute;
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 50px;
-    line-height: 50px;
+    height: 60px;
+    line-height: 60px;
     text-align: center;
     border-top: 1px solid #ebeef5;
     cursor: pointer;
     &:hover {
-      color: @color-dark;
+      color: @font;
     }
     i {
       margin-right: 10px;
@@ -108,15 +127,14 @@ export default {
   }
 
   /deep/ .el-submenu {
-    color: @white;
-    color: @white;
+    color: @font;
     i {
-      color: @white;
+      color: @font;
     }
     &__title {
       text-align: left;
       margin-left: 10px;
-      color: @white;
+      color: @font;
       &:hover {
         background-color: transparent;
       }
@@ -124,14 +142,17 @@ export default {
   }
   /deep/ .el-menu-item {
     text-align: left;
-    margin-left: 10px;
-    color: @white;
+    padding-left: 10px;
+    color: @black;
+    margin: 10px;
+    border-radius: @margin;
+
     i {
-      color: @white;
+      color: @black;
     }
 
     &:hover {
-      background-color: transparent;
+      background-color: #eee;
     }
 
     &:focus {
@@ -150,10 +171,10 @@ export default {
   }
 
   .is-active {
-    color: @color;
+    color: @font;
     font-weight: 700;
     i {
-      color: @color;
+      color: @font;
       font-weight: 700;
     }
   }

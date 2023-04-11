@@ -44,6 +44,7 @@
           :src="historyItem.url"
           class="el-collapse-item__image"
           @handleRemove="deleteItem"
+          @change="handleChange"
           :index="index"
           fit="contain"
         />
@@ -70,6 +71,7 @@
 <script>
 let vm;
 import ImageWithMethod from "@/components/ImageWithMethod.vue";
+import { dataURLtoBlob } from "@/utils/index.js";
 export default {
   data() {
     return {
@@ -110,23 +112,16 @@ export default {
     formatUrl(url) {
       if (!url) return null;
       else if (url.includes("base64")) {
-        return URL.createObjectURL(this.dataURLtoBlob(url));
+        return URL.createObjectURL(dataURLtoBlob(url));
       } else if (url.includes("http")) {
         return url;
       } else {
         return require("@/assets/" + url);
       }
     },
-    dataURLtoBlob(dataurl) {
-      let arr = dataurl.split(","),
-        mime = arr[0].match(/:(.*?);/)[1],
-        bstr = atob(arr[1]),
-        n = bstr.length,
-        u8arr = new Uint8Array(n);
-      while (n--) {
-        u8arr[n] = bstr.charCodeAt(n);
-      }
-      return new Blob([u8arr], { type: mime });
+    
+    handleChange(index,url){
+      this.historyList[index].url=url
     },
     goUpload() {
       this.$router.push("/virtual-fitting");
@@ -185,6 +180,7 @@ export default {
 </script>
 
 <style lang="less" scoped>
+@swiper-width: 300px;
 .main {
   height: 100vh;
   box-sizing: border-box;
@@ -199,7 +195,7 @@ export default {
           background-color: transparent;
           height: 100%;
           border: none;
-          color: @white;
+          color: @font;
         }
         /deep/ .el-input-group__append {
           background-color: #fff9;
@@ -211,7 +207,7 @@ export default {
       }
     }
     /deep/ &.el-collapse {
-      width: calc(100% - 220px);
+      width: calc(100% - @swiper-width - @margin);
       border: none;
       .el-collapse-item {
         height: fit-content;
@@ -245,7 +241,7 @@ export default {
             background-color: @background;
             border-radius: 8px;
             border: none;
-            color: @color-light;
+            color: @font;
           }
           .el-collapse-item__arrow {
             margin-right: 90px;
@@ -258,13 +254,15 @@ export default {
     }
   }
   &-warning {
-    flex: 1;
-    height: 50vh;
+    height: 50%;
+    width: 50%;
     color: @white;
-    transform: translateY(50%);
     background-color: @background;
     border-radius: @margin;
-    position: relative;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     overflow: hidden;
     /deep/ .el-result__title p {
       color: @white;
@@ -302,7 +300,7 @@ export default {
   }
 
   .swiper {
-    width: 200px;
+    width: @swiper-width;
     margin: 0 0 0 @margin !important;
     height: calc(100% - @margin * 2) !important;
     position: fixed;
