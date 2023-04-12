@@ -23,8 +23,6 @@ export default {
       this.$message.error("连接失败");
     };
 
-    
-
     function straightLine(ctx, fromX, fromY, toX, toY, color, width) {
       ctx.beginPath();
       ctx.moveTo(fromX, fromY);
@@ -104,7 +102,7 @@ export default {
       background-color: transparent;
     }
     &-thumb {
-      background-color: @color;
+      background-color: @font-lighter;
       border-radius: 10px;
     }
   }
@@ -118,9 +116,7 @@ export default {
   }
 
   .main {
-    position: relative;
-    left: calc(@nav-width + @margin);
-    width: calc(100% - @nav-width - @margin);
+    width: 100%;
     height: 100%;
     &::after {
       content: "";
@@ -130,10 +126,11 @@ export default {
       top: 0;
       left: 0;
       z-index: -99999;
-      background: url("@/assets/photo.png") no-repeat center center;
+      background: url("@/assets/bg_3.png") no-repeat center center;
       background-size: cover;
       filter: blur(1rem);
       transform: scale(1.05);
+      animation: @opacity-ani;
     }
   }
 }
@@ -146,18 +143,26 @@ export default {
   #stars {
     position: absolute;
     display: block;
+    pointer-events: none;
+    z-index: -9;
   }
+
+  // 黑色模式
+  // &::before {
+  //   content: "";
+  //   height: 100vh;
+  //   width: 100vw;
+  //   position: fixed;
+  //   top: 0;
+  //   left: 0;
+  //   z-index: -99;
+  //   mix-blend-mode: difference;
+  //   background-color: #fff;
+  //   pointer-events: none;
+  // }
 }
 
 @media screen and (max-width: 768px) {
-  @nav-width: 50px;
-  .header-bar {
-    width: @nav-width;
-  }
-  .main {
-    left: calc(@nav-width + @margin);
-    width: calc(100% - @nav-width - @margin);
-  }
   .el-message {
     width: 90%;
     min-width: 0;

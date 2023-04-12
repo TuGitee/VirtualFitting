@@ -1,43 +1,13 @@
 <template>
-  <el-main class="main" @wheel.native="handleWheel">
+  <el-main class="main">
     <div class="main-title">
-      <router-link
-        to="/virtual-fitting"
-        class="main-title-text"
-        title="点击进入"
-        data-text="虚拟试衣"
-      >
-        <p class="main-title-text-en" :style="backgroundStyle">
-          Virtual Fitting
+      <div class="main-title-text">
+        <p class="main-title-text-en">Virtual Fitting.</p>
+        <p class="main-title-text-cn">虚拟试衣</p>
+        <p class="main-title-text-note">
+          虚拟试衣应用是一种基于计算机视觉技术的应用程序，通过使用摄像头或上传照片的方式，让用户可以在线上试穿服装。用户可以选择上传自己的不同姿态的照片以及不同的衣服款式、颜色和尺码，在应用程序中查看自己穿上衣服的效果。
         </p>
-        <p class="main-title-text-cn" :style="backgroundStyle">虚拟试衣</p>
-      </router-link>
-    </div>
-    <div class="loader">
-      <div>
-        <div>
-          <div>
-            <div>
-              <div>
-                <div>
-                  <div>
-                    <div>
-                      <div>
-                        <div>
-                          <div>
-                            <div>
-                              <div><div></div></div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <button class="main-title-text-button" @click="start">START</button>
       </div>
     </div>
   </el-main>
@@ -45,68 +15,21 @@
 
 <script>
 export default {
-  data() {
-    return {
-      x: -50,
-      y: -50,
-      max: 0,
-      min: -100,
-      timer: null,
-      flag: false,
-      speedX: Math.random() - 0.5,
-      speedY: Math.random() - 0.5,
-    };
-  },
   methods: {
-    handleWheel(e) {
-      if (this.flag) return;
-      this.flag = true;
-      setTimeout(() => {
-        if (
-          (this.y <= this.min && e.deltaY > 0) ||
-          (this.y >= this.max && e.deltaY < 0) ||
-          (this.y < this.max && this.y > this.min)
-        ) {
-          this.y = this.formatAxias(this.y + (e.deltaY * Math.random()) / 10);
-          this.x = this.formatAxias(this.x - (e.deltaY * Math.random()) / 10);
-        }
-        this.flag = false;
-      }, 1000 / 30);
+    start() {
+      this.$router.push("/virtual-fitting");
     },
-    formatAxias(n) {
-      return n < this.max ? (n < this.min ? this.min : n) : this.max;
-    },
-    animation() {
-      if (this.x >= this.max || this.x <= this.min) this.speedX = -this.speedX;
-      if (this.y >= this.max || this.y <= this.min) this.speedY = -this.speedY;
-      this.y = this.formatAxias(this.y + this.speedY / 10);
-      this.x = this.formatAxias(this.x + this.speedX / 10);
-    },
-  },
-  computed: {
-    backgroundStyle() {
-      return {
-        backgroundPosition: `${this.x}vw  ${this.y}vh`,
-      };
-    },
-  },
-  created() {
-    this.timer = setInterval(() => {
-      this.animation();
-    }, 1000 / 60);
-  },
-  beforeDestroy() {
-    clearInterval(this.timer);
   },
 };
 </script>
 
 <style lang="less" scoped>
 .main {
-  left: 0;
   width: 100%;
-  height: 100vh;
+  height: calc(100vh - @nav-height);
   overflow: hidden;
+  position: relative;
+  display: flex;
 
   &::after {
     content: "";
@@ -116,21 +39,20 @@ export default {
     top: 0;
     left: 0;
     z-index: -99999;
-    background: url("@/assets/bg_1.png") no-repeat center center;
+    background: url("@/assets/bg_3.png") no-repeat center center;
     background-size: cover;
   }
 
   &-title {
-    position: absolute;
-    left: 50%;
-    top: 50%;
+    margin: calc(@margin * 3);
+    text-align: left;
     height: fit-content;
     width: fit-content;
+    max-width: 50vw;
     transition: all 0.5s;
-    transform: translate(-50%, -50%);
     filter: contrast(10);
     white-space: nowrap;
-    animation: contrast 3s forwards;
+    animation: contrast 2s forwards;
     @keyframes contrast {
       100% {
         filter: none;
@@ -143,28 +65,68 @@ export default {
       &-cn {
         letter-spacing: 40px;
         font-weight: 900;
-        background: url("@/assets/bg.png") no-repeat -50vw -50vh;
-        background-clip: text;
-        background-size: 200vw 200vh;
-        color: @color;
-        animation: hunhe 3s forwards;
-        filter: blur(10px);
-        text-shadow: 10px 11px 0px #0220c7;
+        color: @white;
+        animation: hunhe 2s forwards;
+        // 更细化以1 0.5px为基准
+        text-shadow: 1px 0.5px 0px #0220c700, 2px 1px 0px #0220c711,
+          3px 1.5px 0px #0220c722, 4px 2px 0px #0220c733,
+          5px 2.5px 0px #0220c744, 6px 3px 0px #0220c755,
+          7px 3.5px 0px #0220c766, 8px 4px 0px #0220c777,
+          9px 4.5px 0px #0220c788, 10px 5px 0px #0220c799,
+          11px 5.5px 0px #0220c7a0, 12px 6px 0px #0220c7a1,
+          13px 6.5px 0px #0220c7a2, 14px 7px 0px #0220c7a3,
+          15px 7.5px 0px #0220c7a4, 16px 8px 0px #0220c7a5,
+          17px 8.5px 0px #0220c7a6, 18px 9px 0px #0220c7a7,
+          19px 9.5px 0px #0220c7a8, 20px 10px 0px #0220c7a9,
+          21px 10.5px 0px #0220c7aa, 22px 11px 0px #0220c7ab,
+          23px 11.5px 0px #0220c7ac, 24px 12px 0px #0220c7ad,
+          25px 12.5px 0px #0220c7ae, 26px 13px 0px #0220c7af;
         font-size: 200px;
+        margin-top: @margin;
         line-height: 1;
       }
 
       &-en {
         letter-spacing: 5px;
         font-weight: 900;
-        background: url("@/assets/bg.png") no-repeat -50vw -50vh;
         background-clip: text;
         background-size: 200vw 200vh;
-        filter: blur(10px);
-        text-shadow: 5px 5px 0px #0220c7;
-        color: white;
-        animation: hunhe 3s forwards;
+        text-shadow: 0.5px 0.5px 0px #0220c700, 1px 1px 0px #0220c722,
+          1.5px 1.5px 0px #0220c744, 2px 2px 0px #0220c766,
+          2.5px 2.5px 0px #0220c788, 3px 3px 0px #0220c7a0,
+          3.5px 3.5px 0px #0220c7b2, 4px 4px 0px #0220c7c3,
+          4.5px 4.5px 0px #0220c7d4, 5px 5px 0px #0220c7e5;
+        color: @white;
         font-size: 50px;
+      }
+
+      &-note {
+        margin-top: calc(@margin * 2);
+        text-indent: 2em;
+        white-space: break-spaces;
+        color: grey;
+        font-size: 16px;
+        position: relative;
+      }
+
+      &-button {
+        letter-spacing: 5px;
+        font-weight: 900;
+        text-shadow: 5px 5px 0px #0220c7;
+        color: @white;
+        font-size: 20px;
+        border: none;
+        outline: none;
+        background: @black;
+        cursor: pointer;
+        line-height: 1;
+        padding: @margin;
+        border-radius: 999px;
+        margin-top: 20px;
+        transition: all 0.5s;
+        &:hover {
+          box-shadow: @box-shadow;
+        }
       }
 
       @keyframes hunhe {
@@ -177,46 +139,6 @@ export default {
           filter: blur(0px);
         }
       }
-    }
-  }
-
-  .loader {
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-    margin: auto;
-    width: 600px;
-    height: 600px;
-    display: block;
-    z-index: -1;
-    overflow: hidden;
-    border-radius: 50%;
-    padding: 10px;
-    border: 2px solid transparent;
-    animation: rotate linear 3.5s infinite;
-    border-top-color: #fff5;
-    border-bottom-color: #000;
-    div {
-      height: 100%;
-      border-radius: 50%;
-      padding: 10px;
-      border: 2px solid transparent;
-      animation: rotate linear 3.5s infinite;
-      border-top-color: #fff5;
-      border-bottom-color: #000;
-    }
-  }
-  @keyframes rotate {
-    0% {
-      transform: rotate(0deg);
-    }
-    50% {
-      transform: rotate(180deg);
-    }
-    100% {
-      transform: rotate(360deg);
     }
   }
 }

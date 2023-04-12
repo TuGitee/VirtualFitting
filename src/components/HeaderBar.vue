@@ -1,31 +1,36 @@
 <template>
-  <div>
-    <el-menu :default-active="$route.path" router class="el-menu-vertical-demo">
-      <el-menu-item class="el-menu-vertical-demo-title">
-        <router-link to="/">
-          <img src="@/assets/logo.png" alt="虚拟试衣logo" />
-        </router-link>
-      </el-menu-item>
-
-      <el-menu-item
-        v-for="(item, index) in navList"
-        :key="index"
-        :index="item.path"
-      >
-        <i :class="item.meta.icon"></i>
-        <span slot="title">{{ item.meta.title }}</span>
-      </el-menu-item>
-      <div class="give-me-money" @click="dialogVisible = true">
-        <i class="el-icon-goods"></i
-        ><span class="give-me-money-word">赞赏我们吧！</span>
+  <div class="root">
+    <el-menu :default-active="$route.path" router class="el-menu">
+      <div class="el-menu-left">
+        <el-menu-item class="el-menu-left-title">
+          <router-link to="/">
+            <img src="@/assets/logo.png" alt="虚拟试衣logo" />
+          </router-link>
+        </el-menu-item>
+        <el-menu-item
+          v-for="(item, index) in navList"
+          :key="index"
+          :index="item.path"
+        >
+          <i :class="item.meta.icon"></i>
+          <span slot="title">{{ item.meta.title }}</span>
+        </el-menu-item>
+      </div>
+      <div class="el-menu-right">
+        <el-menu-item class="give-me-money" @click="dialogVisible = true">
+          <i class="el-icon-goods"></i
+          ><span slot="title" class="give-me-money-word">赞赏我们吧！</span>
+        </el-menu-item>
       </div>
     </el-menu>
+
     <el-dialog
       title="赞赏码"
       :visible.sync="dialogVisible"
       width="25%"
       center
       class="el-menu-pay"
+      :append-to-body="true"
     >
       <el-tabs
         v-model="activeItem"
@@ -50,7 +55,9 @@
           ></el-image>
         </el-tab-pane>
       </el-tabs>
-      <p class="el-menu-pay-title">您的赞赏是对我们最大的支持！</p>
+      <template #footer class="el-menu-pay-title"
+        >您的赞赏是对我们最大的支持！</template
+      >
     </el-dialog>
   </div>
 </template>
@@ -60,7 +67,7 @@ import routes from "@/router/routes";
 export default {
   data() {
     return {
-      navList: routes.filter((item) => item.meta.isShow),
+      navList: routes.filter((item) => item.meta.icon),
       dialogVisible: false,
       activeItem: "Alipay",
     };
@@ -69,139 +76,182 @@ export default {
     handleClick(tab) {
       this.activeItem = tab.name;
     },
+    handleScroll(e) {
+      const scrollTop =
+        document.documentElement.scrollTop || document.body.scrollTop;
+      if (scrollTop >= 0) {
+        this.$el.style.backgroundColor = `rgba(255,255,255,${
+          scrollTop / 100 > 1 ? 1 : scrollTop / 100
+        })`;
+      } else {
+        this.$el.style.backgroundColor = "transparent";
+      }
+    },
+  },
+  mounted() {
+    window.addEventListener("scroll", this.handleScroll);
   },
 };
 </script>
 
 <style lang="less" scoped>
-.el-menu-vertical-demo {
-  &-title {
-    height: fit-content;
-    text-align: center;
-    font-size: 20px;
-    font-weight: 600;
-    border: none !important;
-    padding: 20px 30px;
-    img {
-      width: 100%;
-    }
-  }
-}
-.el-menu {
-  color: @black;
-  text-align: center;
-  position: fixed;
+.root {
+  position: sticky;
   top: 0;
-  left: 0;
-  z-index: 1000;
-  width: @nav-width;
-  height: calc(100% - @margin * 2);
-  background-color: @background;
-  color: @black;
-  border-radius: @margin;
-  margin: @margin;
-  border: none;
-  box-shadow: 0 0 20px -5px #1c1f3e;
+  width: 100%;
+  height: calc(@nav-height - @margin / 2);
+  z-index: 999;
+  border-radius: 0 0 @margin @margin;
+  overflow: hidden;
+  box-shadow: @box-shadow-light;
 
-  .give-me-money {
+  &::after {
+    content: "";
+    display: block;
     position: absolute;
-    bottom: 0;
     left: 0;
+    top: 0;
+    height: 100%;
     width: 100%;
-    height: 60px;
-    line-height: 60px;
-    text-align: center;
-    border-top: 1px solid #ebeef5;
-    cursor: pointer;
-    &:hover {
-      color: @font;
-    }
-    i {
-      margin-right: 10px;
-    }
+    filter: blur(5px);
+    transform: scale(1.1);
+    z-index: -99999;
+    // background: url("@/assets/bg_2.png") no-repeat left top;
+    background-color: @background;
   }
 
-  /deep/ .el-menu.el-menu--horizontal {
-    border-bottom: none;
+  .el-menu {
+    color: @black;
     display: flex;
-  }
+    gap: calc(@margin / 2);
+    text-align: center;
+    justify-content: space-between;
+    top: 0;
+    left: 0;
+    background-color: transparent;
+    color: @font-lightest;
+    border-radius: @margin;
+    border: none;
+    transition: all 0.3s ease-in-out;
 
-  /deep/ .el-submenu {
-    color: @font;
-    i {
-      color: @font;
+    &-left {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      height: 100%;
+      width: 100%;
+      gap: calc(@margin / 2);
+
+      &-title {
+        width: 100px;
+        border: none !important;
+        img {
+          height: calc(100% - @margin);
+        }
+      }
     }
-    &__title {
-      text-align: left;
-      margin-left: 10px;
+
+    &-right {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      height: 100%;
+      width: 100%;
+      .give-me-money {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        cursor: pointer;
+        transition: none;
+
+        i {
+          margin-right: 10px;
+        }
+
+        &:hover {
+          color: @font;
+          i {
+            color: @font;
+          }
+        }
+      }
+    }
+
+    /deep/ .el-menu.el-menu--horizontal {
+      border-bottom: none;
+      display: flex;
+    }
+
+    /deep/ .el-submenu {
       color: @font;
+      i {
+        color: @font;
+      }
+      &__title {
+        text-align: left;
+        margin-left: 10px;
+        color: @font;
+        &:hover {
+          background-color: transparent;
+        }
+      }
+    }
+    /deep/ .el-menu-item {
+      text-align: center;
+      width: fit-content;
+      height: @item-height;
+      line-height: @item-height;
+      color: @font-lightest;
+      margin: 10px 0;
+      border-radius: @margin;
+      padding: 0 10px !important;
+
+      i {
+        color: @font-lightest;
+      }
+
       &:hover {
         background-color: transparent;
       }
-    }
-  }
-  /deep/ .el-menu-item {
-    text-align: left;
-    padding-left: 10px;
-    color: @black;
-    margin: 10px;
-    border-radius: @margin;
 
-    i {
-      color: @black;
+      &:hover:not(:first-child) {
+        background-color: @white;
+      }
+
+      &:focus {
+        background-color: transparent;
+      }
     }
 
-    &:hover {
-      background-color: #eee;
-    }
-
-    &:focus {
-      background-color: transparent;
-    }
-  }
-  &-pay {
-    user-select: none;
-    &-title {
-      margin-top: 10px;
-      text-align: center;
-    }
-    /deep/ .el-dialog {
-      min-width: 350px;
-    }
-  }
-
-  .is-active {
-    color: @font;
-    font-weight: 700;
-    i {
+    .is-active {
       color: @font;
       font-weight: 700;
-    }
-  }
-  @media screen and (max-width: 768px) {
-    width: 50px;
-    &-item {
-      margin: 0 !important;
-      padding: 0 !important;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      position: relative;
       i {
-        margin: 0;
-      }
-      span {
-        display: none;
+        color: @font;
+        font-weight: 700;
       }
     }
-    .give-me-money {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      &-word {
-        display: none;
+    @media screen and (max-width: 768px) {
+      &-item {
+        i {
+          margin: 0;
+        }
+        span {
+          display: none;
+        }
       }
-      i {
-        margin: 0;
+      .give-me-money {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        &-word {
+          display: none;
+        }
+        i {
+          margin: 0;
+        }
       }
     }
   }

@@ -1,25 +1,10 @@
 <template>
   <el-main class="video-fitting main">
-    <swiper
-      class="swiper gallery-thumbs"
-      :options="swiperOptionThumbs"
-      ref="swiperThumbs"
-      v-if="snapList.length"
-    >
-      <swiper-slide
-        class="swiper-slide"
-        v-for="(item, index) in snapList"
-        :data-value="item.id"
-        :key="index"
-      >
-        <ImageWithMethod
-          :src="item.url"
-          :options="{ isDownload: true, isDelete: true }"
-          :index="index"
-          @handleRemove="deleteItem"
-        />
-      </swiper-slide>
-    </swiper>
+    <div class="video-fitting-pre">
+      <ImageWithMethod :src="preImg" :options="{ isDownload: true }" />
+      <b>上一次拍摄的图片</b>
+    </div>
+
     <div class="video-fitting-video">
       <div class="video-fitting-video-canvas">
         <canvas id="try-on"></canvas>
@@ -30,8 +15,26 @@
     </div>
 
     <div class="video-fitting-side">
-      <ImageWithMethod :src="preImg" :options="{ isDownload: true }" />
-      <b>上一次拍摄的图片</b>
+      <swiper
+        class="swiper gallery-thumbs"
+        :options="swiperOptionThumbs"
+        ref="swiperThumbs"
+        v-if="snapList.length"
+      >
+        <swiper-slide
+          class="swiper-slide"
+          v-for="(item, index) in snapList"
+          :data-value="item.id"
+          :key="index"
+        >
+          <ImageWithMethod
+            :src="item.url"
+            :options="{ isDownload: true, isDelete: true }"
+            :index="index"
+            @handleRemove="deleteItem"
+          />
+        </swiper-slide>
+      </swiper>
       <UploadPhoto type="clothes" />
     </div>
   </el-main>
@@ -50,14 +53,12 @@ export default {
       clothes: {},
       snapList: JSON.parse(localStorage.getItem("snap")) || [],
       swiperOptionThumbs: {
-        direction: "vertical",
-        loop: true,
+        direction: "horizontal",
         mousewheel: true,
         spaceBetween: 20,
-        centeredSlides: true,
         observer: true,
         observeParents: true,
-        slidesPerView: 3,
+        slidesPerView: 1,
         touchRatio: 0.1,
         slideToClickedSlide: true,
         autoplay: {
@@ -205,33 +206,45 @@ export default {
   justify-content: center;
   align-items: center;
   margin: @margin;
-  height: calc(100vh - @margin * 2);
-  width: calc(100vw - @margin * 3 - @nav-width);
+  height: calc(100vh - @margin * 2 - @nav-height);
+  width: calc(100% - @margin * 2);
   padding: @margin;
   background-color: @background;
   border-radius: @margin;
+  box-shadow: @box-shadow;
+  gap: @margin;
 
-  .swiper {
-    margin: 0 @margin 0 0 !important;
-    height: 100%;
+  &::after {
+    content: "";
+    height: 100vh;
+    width: 100vw;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -99999;
+    background: url("@/assets/bg_1.png") no-repeat center center;
+    background-size: cover;
+  }
+  &-pre {
     flex: 1;
-    &.gallery-thumbs {
-      padding: @margin;
-      background-color: @background;
-      border-radius: @margin;
-      .swiper-slide {
-        height: 100%;
-        width: 100%;
-        img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          border-radius: @margin;
-        }
-        &-active {
-          opacity: 1;
-        }
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    /deep/ & > .image-method-box {
+      
+      box-shadow: @box-shadow-light;
+      .normal img {
+        object-fit: cover !important;
+        transform: rotateY(180deg);
       }
+    }
+
+    b {
+      display: block;
+      color: @font;
+      margin: @margin;
     }
   }
 
@@ -270,7 +283,6 @@ export default {
   }
 
   &-side {
-    margin-left: @margin;
     padding-bottom: 60px;
     width: 400px;
     height: 100%;
@@ -279,6 +291,32 @@ export default {
     align-items: center;
     justify-content: space-between;
     height: 100%;
+
+    .swiper {
+      margin: 0 0 @margin 0 !important;
+      height: 100%;
+      width: 100%;
+      box-shadow: @box-shadow-light;
+      &.gallery-thumbs {
+        padding: @margin;
+        background-color: @background;
+        border-radius: @margin;
+        .swiper-slide {
+          height: 100%;
+          width: 100%;
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: @margin;
+          }
+          &-active {
+            opacity: 1;
+          }
+        }
+      }
+    }
+
     /deep/ .upload-demo {
       width: 100%;
       height: 360px;
@@ -288,24 +326,6 @@ export default {
           height: 100%;
         }
       }
-    }
-
-    /deep/ & > .image-method-box {
-      height: 380px;
-      width: 380px;
-      .normal img {
-        object-fit: cover !important;
-        transform: rotateY(180deg);
-      }
-    }
-
-    /deep/ .image-method-box__actions {
-      font-size: 40px;
-    }
-
-    b {
-      color: @font;
-      margin: @margin;
     }
   }
 

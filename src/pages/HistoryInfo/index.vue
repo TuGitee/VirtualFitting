@@ -55,6 +55,7 @@
       class="swiper gallery-thumbs"
       :options="swiperOptionThumbs"
       ref="swiperThumbs"
+      v-if="historyList.length !== 0"
     >
       <swiper-slide
         class="swiper-slide"
@@ -77,12 +78,11 @@ export default {
     return {
       searchText: "",
       activeIndex: [],
-      historyList: JSON.parse(localStorage.getItem("history"))||[],
+      historyList: JSON.parse(localStorage.getItem("history")) || [],
       swiperOptionThumbs: {
         direction: "vertical",
         mousewheel: true,
         spaceBetween: 10,
-        centeredSlides: true,
         observer: true,
         observeParents: true,
         slidesPerView: 4,
@@ -119,9 +119,9 @@ export default {
         return require("@/assets/" + url);
       }
     },
-    
-    handleChange(index,url){
-      this.historyList[index].url=url
+
+    handleChange(index, url) {
+      this.historyList[index].url = url;
     },
     goUpload() {
       this.$router.push("/virtual-fitting");
@@ -155,7 +155,7 @@ export default {
       let clickedIndex = that.clickedIndex;
       if (!that.clickedSlide) return;
       if (clickedIndex === undefined) return;
-      this.activeIndex=Number(that.clickedSlide.getAttribute("data-value"));
+      this.activeIndex = Number(that.clickedSlide.getAttribute("data-value"));
       this.scrollTo();
 
       if (vm.focusIndex !== clickedIndex) {
@@ -182,9 +182,21 @@ export default {
 <style lang="less" scoped>
 @swiper-width: 300px;
 .main {
-  height: 100vh;
   box-sizing: border-box;
   display: flex;
+
+  &::after {
+    content: "";
+    height: 100vh;
+    width: 100vw;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -99999;
+    background: url("@/assets/bg_4.png") no-repeat center center;
+    background-size: cover;
+  }
+
   &-history {
     height: fit-content;
     &-search {
@@ -196,10 +208,14 @@ export default {
           height: 100%;
           border: none;
           color: @font;
+          &::-webkit-input-placeholder {
+            color: @font-lightest;
+          }
         }
         /deep/ .el-input-group__append {
           background-color: #fff9;
           border: none;
+          color: @font;
         }
       }
       /deep/ .el-collapse-item__arrow {
@@ -256,7 +272,7 @@ export default {
   &-warning {
     height: 50%;
     width: 50%;
-    color: @white;
+    color: @font;
     background-color: @background;
     border-radius: @margin;
     position: absolute;
@@ -264,18 +280,20 @@ export default {
     left: 50%;
     transform: translate(-50%, -50%);
     overflow: hidden;
+    transition: all .5s;
+
     /deep/ .el-result__title p {
-      color: @white;
+      color: @font;
     }
     /deep/ .el-result__subtitle p {
-      color: @white;
+      color: @font;
     }
     /deep/ .el-result__extra button {
-      background-color: @color;
+      background-color: @font-lighter;
       border: none;
     }
     &:hover {
-      box-shadow: 0px 0px 30px -10px #0003;
+      box-shadow: @box-shadow;
       &::after {
         left: 150%;
       }

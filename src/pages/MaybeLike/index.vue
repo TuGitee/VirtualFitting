@@ -120,6 +120,7 @@ export default {
   &-image {
     aspect-ratio: 1/1;
     min-height: 10vh;
+    box-shadow: @box-shadow;
 
     &:first-child {
       grid-area: 1/3/3/6;

@@ -44,7 +44,7 @@ export default [
         path: "/start",
         component: () => import('@/pages/Start'),
         meta: {
-            isShow: false,
+            isShow: true,
             title: '首页'
         }
     },

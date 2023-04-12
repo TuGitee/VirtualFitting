@@ -104,6 +104,10 @@ export default {
     },
   },
   mounted() {
+    if (window.innerWidth < 768) {
+      this.options.slidesPerView = 1.2;
+      this.swiperOptionThumbs.slidesPerView = 3;
+    }
     this.$nextTick(() => {
       const swiper = this.swiper;
       const swiperThumbs = this.swiperThumbs;
@@ -121,7 +125,7 @@ export default {
 #root {
   border-radius: @margin;
   background-color: @background;
-  box-shadow: 0 0 20px -10px #1c1f3e;
+  box-shadow: @box-shadow;
   padding: 1% 0;
   img {
     border-radius: 10px;

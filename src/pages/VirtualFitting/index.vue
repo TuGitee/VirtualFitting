@@ -13,6 +13,7 @@
         :key="index"
         :multiple="type === 'clothes'"
         class="virtual-fitting-photo-upload"
+        :disabled="isloading"
       />
       <el-progress
         class="virtual-fitting-photo-progress"
@@ -24,6 +25,9 @@
         @click.native="Upload"
         @tap.native="Upload"
         type="circle"
+        define-back-color="#fff"
+        :width="200"
+        :status="progressStatus"
       ></el-progress>
     </div>
 
@@ -92,12 +96,13 @@ export default {
       isloading: false,
       isUpload: false,
       progress: 0,
+      progressStatus: '',
       colors: [
-        { color: "#f56c6c", percentage: 20 },
-        { color: "#e6a23c", percentage: 40 },
-        { color: "#5cb87a", percentage: 60 },
-        { color: "#1989fa", percentage: 80 },
-        { color: "#6f7ad3", percentage: 100 },
+        { color: "#93aec1", percentage: 20 },
+        { color: "#9dbdba", percentage: 40 },
+        { color: "#f8b042", percentage: 60 },
+        { color: "#ec6a52", percentage: 80 },
+        { color: "#f3b7ad", percentage: 100 },
       ],
       timer: null,
       backgroundList: [
@@ -236,6 +241,8 @@ export default {
       return `${val.toFixed(2)}%`;
     },
     Upload() {
+      if(this.isUpload) return this.$message.error('正在上传中，请稍后')
+      if(this.isloading) return this.$message.error('正在生成中，请稍后')
       this.isUpload = true;
       this.$confirm("确定上传图片吗？")
         .then(() => {
@@ -363,10 +370,9 @@ export default {
   padding: @margin;
   display: flex;
   flex-direction: column;
-  height: 100vh;
 
   &-carousel {
-    flex: 1;
+    height: 600px;
     margin-bottom: @margin;
     overflow: hidden;
   }
@@ -375,28 +381,26 @@ export default {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    height: 40%;
+    height: 300px;
     gap: @margin;
 
-    &-upload {
+    & > div {
+      box-shadow: @box-shadow;
       background-color: @background;
       width: 100%;
       height: 100%;
       border-radius: @margin;
       padding: @margin;
+    }
 
+    &-upload {
       &:last-child:not(:first-child) {
         margin-left: @margin;
       }
     }
     &-progress {
-      background-color: @background;
-      border-radius: @margin;
       cursor: pointer;
-      width: 100%;
-      height: 100%;
       border: none;
-      border-radius: @margin;
       transition: all 0.3s;
       display: flex;
       justify-content: center;
@@ -466,7 +470,7 @@ export default {
   @media screen and (max-width: 768px) {
     height: initial;
     &-photo {
-      height: 628px;
+      height: 868px;
       &-upload {
         &:last-child:not(:first-child) {
           margin-top: @margin;

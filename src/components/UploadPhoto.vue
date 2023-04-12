@@ -21,6 +21,8 @@
         :on-error="handleError"
         :class="{ isShow: isUpload }"
         :multiple="multiple"
+        :disabled="disabled"
+        :style="backgroundStyle"
       >
         <div class="el-upload__text">
           <p>{{ ("上传" + typeName[type]).split("").join(" ") }}</p>
@@ -117,11 +119,24 @@ export default {
       files: [],
     };
   },
+  computed: {
+    backgroundStyle() {
+      const path = require(`@/assets/clothes_${Math.round(Math.random())}.png`)
+      return {
+        background: `url(${path}) no-repeat center center`,
+        backgroundSize: "cover",
+      };
+    },
+  },
   props: {
     type: {
       type: String,
     },
     multiple: {
+      type: Boolean,
+      default: false,
+    },
+    disabled: {
       type: Boolean,
       default: false,
     },
@@ -258,7 +273,7 @@ export default {
       height: 100%;
       border: none;
       color: @font;
-      &::-webkit-input-placeholder{
+      &::-webkit-input-placeholder {
         color: @font-lightest;
       }
     }
@@ -275,6 +290,9 @@ export default {
     display: block;
     height: 100%;
     width: 100%;
+    border-radius: @margin;
+    overflow: hidden;
+
     div {
       height: 100%;
       width: 100%;
@@ -286,6 +304,7 @@ export default {
       font-size: 16px;
       transform: translate(0px, 8px);
       background-color: @color-dark;
+      background: transparent;
       z-index: 9;
     }
   }
@@ -295,9 +314,11 @@ export default {
     width: 100%;
     border-radius: @margin;
     overflow: hidden;
-    border: 2px solid #335aa7;
+    border: none;
+    background-color: transparent;
 
     .el-upload-dragger {
+      background-color: transparent;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -306,8 +327,6 @@ export default {
       height: 100%;
       position: relative;
       border: none;
-      background: url("@/assets/clothes.png") no-repeat center center;
-      background-size: cover;
       i {
         margin: 5px auto;
       }
@@ -324,7 +343,7 @@ export default {
         font-size: 26px;
         line-height: 4;
         left: 0;
-        background: linear-gradient(#0006, #000d);
+        background: linear-gradient(rgba(0, 0, 0, 0.193), rgba(0, 0, 0, 0.615));
         filter: drop-shadow(0 0 1 @white);
         transition: all 0.5s;
 
