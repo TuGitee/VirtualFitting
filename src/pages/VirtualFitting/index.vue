@@ -96,7 +96,7 @@ export default {
       isloading: false,
       isUpload: false,
       progress: 0,
-      progressStatus: '',
+      progressStatus: "",
       colors: [
         { color: "#93aec1", percentage: 20 },
         { color: "#9dbdba", percentage: 40 },
@@ -241,8 +241,8 @@ export default {
       return `${val.toFixed(2)}%`;
     },
     Upload() {
-      if(this.isUpload) return this.$message.error('正在上传中，请稍后')
-      if(this.isloading) return this.$message.error('正在生成中，请稍后')
+      if (this.isUpload) return this.$message.error("正在上传中，请稍后");
+      if (this.isloading) return this.$message.error("正在生成中，请稍后");
       this.isUpload = true;
       this.$confirm("确定上传图片吗？")
         .then(() => {
@@ -298,7 +298,7 @@ export default {
       if (this.isloading) return;
       this.isloading = true;
       this.createImage = [];
-      this.$ws.send(files.join("$"));
+      this.$ws.send("1$" + files.join("$"));
       this.timer = setInterval(() => {
         this.progress += Math.random() > 0.5 ? Math.random() : 0;
         if (this.progress >= 98 + Math.random()) {
@@ -334,16 +334,7 @@ export default {
         localStorage.setItem("history", JSON.stringify(history));
       }
     },
-  },
-  mounted() {
-    this.$bus.$on("uploadPhoto", (type, obj) => {
-      if (!type) return;
-      if (type === "person") this.filelist.person = obj[0];
-      else this.filelist[type] = obj;
-    });
-  },
-  created() {
-    this.$ws.onmessage = (evt) => {
+    receiveImage(evt) {
       const baseURL = "http://192.168.1.115:8000/static/";
       let data = evt.data;
       let url = baseURL + data;
@@ -360,7 +351,21 @@ export default {
         this.progress = 0;
       }, 1000);
       this.isloading = false;
-    };
+    },
+  },
+  mounted() {
+    this.$bus.$on("uploadPhoto", (type, obj) => {
+      if (!type) return;
+      if (type === "person") this.filelist.person = obj[0];
+      else this.filelist[type] = obj;
+    });
+  },
+  created() {
+    this.$ws.addEventListener("message",this.receiveImage);
+  },
+  beforeDestroy() {
+    clearInterval(this.timer);
+    this.$ws.removeEventListener("message", this.receiveImage);
   },
 };
 </script>

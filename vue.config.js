@@ -4,6 +4,7 @@ module.exports = defineConfig({
   transpileDependencies: true,
   lintOnSave: false,
   devServer:{
+    // https: true
   },
   pluginOptions: {
     'style-resources-loader': {

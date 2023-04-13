@@ -2,8 +2,11 @@
   <el-main class="main">
     <div class="main-title">
       <div class="main-title-text">
-        <p class="main-title-text-en">Virtual Fitting.</p>
-        <p class="main-title-text-cn">虚拟试衣</p>
+        <h4 class="main-title-text-en">Virtual Fitting.</h4>
+        <h1 class="main-title-text-cn">云裳</h1>
+        <h6 class="main-title-text-subtitle">
+          ——基于计算机视觉的多功能虚拟试衣
+        </h6>
         <p class="main-title-text-note">
           虚拟试衣应用是一种基于计算机视觉技术的应用程序，通过使用摄像头或上传照片的方式，让用户可以在线上试穿服装。用户可以选择上传自己的不同姿态的照片以及不同的衣服款式、颜色和尺码，在应用程序中查看自己穿上衣服的效果。
         </p>
@@ -44,7 +47,7 @@ export default {
   }
 
   &-title {
-    margin: calc(@margin * 3);
+    margin: @margin calc(@margin * 3);
     text-align: left;
     height: fit-content;
     width: fit-content;
@@ -67,7 +70,6 @@ export default {
         font-weight: 900;
         color: @white;
         animation: hunhe 2s forwards;
-        // 更细化以1 0.5px为基准
         text-shadow: 1px 0.5px 0px #0220c700, 2px 1px 0px #0220c711,
           3px 1.5px 0px #0220c722, 4px 2px 0px #0220c733,
           5px 2.5px 0px #0220c744, 6px 3px 0px #0220c755,
@@ -98,6 +100,21 @@ export default {
           4.5px 4.5px 0px #0220c7d4, 5px 5px 0px #0220c7e5;
         color: @white;
         font-size: 50px;
+      }
+
+      &-subtitle {
+        margin-top: calc(@margin * 2);
+        text-indent: 2em;
+        font-weight: 700;
+        text-align: right;
+         letter-spacing: 5px;
+         color: @white;
+         text-shadow: 0.5px 0.5px 0px #0220c700, 1px 1px 0px #0220c722,
+          1.5px 1.5px 0px #0220c744, 2px 2px 0px #0220c766,
+          2.5px 2.5px 0px #0220c788, 3px 3px 0px #0220c7a0,
+          3.5px 3.5px 0px #0220c7b2, 4px 4px 0px #0220c7c3,
+          4.5px 4.5px 0px #0220c7d4, 5px 5px 0px #0220c7e5;
+          font-size: 30px;
       }
 
       &-note {

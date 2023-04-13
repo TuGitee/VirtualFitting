@@ -23,7 +23,7 @@
       >
         <swiper-slide
           class="swiper-slide"
-          v-for="(item, index) in snapList"
+          v-for="(item, index) in snapList.slice(now)"
           :data-value="item.id"
           :key="index"
         >
@@ -35,22 +35,27 @@
           />
         </swiper-slide>
       </swiper>
-      <UploadPhoto type="clothes" />
+      <UploadPhoto type="clothes" :style="snapList.length ? '' : 'flex:1'" />
     </div>
   </el-main>
 </template>
 
 <script>
-let timer = null;
-let video = document.createElement("video");
 import UploadPhoto from "@/components/UploadPhoto";
 import ImageWithMethod from "@/components/ImageWithMethod";
 export default {
   name: "VideoFitting",
   data() {
     return {
+      canvas: null,
+      canvasImage: null,
+      video: null,
+      timer: null,
+      imgHeight: 1024,
+      imgWidth: 768,
       preImg: "",
       clothes: {},
+      now: 0,
       snapList: JSON.parse(localStorage.getItem("snap")) || [],
       swiperOptionThumbs: {
         direction: "horizontal",
@@ -68,14 +73,25 @@ export default {
       },
     };
   },
+  computed: {
+    ctx() {
+      return this.canvas.getContext("2d");
+    },
+    ctxImage() {
+      return this.canvasImage.getContext("2d");
+    },
+  },
   methods: {
     snap() {
-      let canvas = document.getElementById("try-on");
-      this.preImg = canvas.toDataURL("image/png");
+      if (this.snapList.length) {
+        this.now = 1;
+      }
+      this.preImg = this.canvas.toDataURL("image/png");
       this.localStore({
         url: this.preImg,
         id: +new Date(),
       });
+      this.now = 1;
     },
     deleteItem(index) {
       this.snapList.splice(index, 1);
@@ -105,22 +121,21 @@ export default {
       }
       this.snapList = JSON.parse(localStorage.getItem("snap"));
     },
-  },
-  components: {
-    UploadPhoto,
-    ImageWithMethod,
-  },
-  mounted() {
-    const that = this;
-    const canvas = document.getElementById("try-on");
-    const ctx = canvas.getContext("2d");
-    const box = document.querySelector(".video-fitting-video-canvas");
-
-    window.addEventListener("resize", () => {
-      init();
-    });
-
-    function getUserMedia(constraints, success, error) {
+    receiveImage(evt) {
+      const ctx = this.canvas.getContext("2d");
+      const fr = new FileReader();
+      fr.readAsDataURL(evt.data);
+      fr.onload = (e) => {
+        let img = new Image();
+        img.src = e.target.result;
+        img.onload = (e) => {
+          console.log(img);
+          ctx.drawImage(img, 0, 0, this.imgWidth, this.imgHeight);
+          this.sendVideoImage();
+        };
+      };
+    },
+    getUserMedia(constraints, success, error) {
       if (navigator.mediaDevices.getUserMedia) {
         navigator.mediaDevices
           .getUserMedia(constraints)
@@ -133,69 +148,105 @@ export default {
       } else if (navigator.getUserMedia) {
         navigator.getUserMedia(constraints, success, error);
       }
-    }
-
-    function init() {
-      const width = 768;
-      const height = 1024;
-      canvas.width = width;
-      canvas.height = height;
+    },
+    init() {
+      this.canvas = document.getElementById("try-on");
+      this.canvasImage = document.createElement("canvas");
+      this.canvas.height = this.canvasImage.height = this.imgHeight;
+      this.canvas.width = this.canvasImage.width = this.imgWidth;
       if (
         navigator.mediaDevices.getUserMedia ||
         navigator.getUserMedia ||
         navigator.webkitGetUserMedia ||
         navigator.mozGetUserMedia
       ) {
-        getUserMedia(
+        this.getUserMedia(
           { video: { width: "auto", height: "auto" } },
-          success,
-          error
+          this.success,
+          this.error
         );
       } else {
-        that.$message.error("不支持摄像头！");
+        this.$message.error("不支持摄像头！");
       }
-    }
-
-    init();
-
-    function success(stream) {
-      video.srcObject = stream;
-      video.onloadedmetadata = (e) => {
-        video.play();
-        timer = setInterval(() => {
-          const width = canvas.width;
-          const height = canvas.height;
-          const { videoWidth, videoHeight } = video;
-          const scale = Math.max(width / videoWidth, height / videoHeight);
-          const x = (width - videoWidth * scale) / 2;
-          const y = (height - videoHeight * scale) / 2;
-          ctx.drawImage(
-            video,
-            0,
-            0,
-            videoWidth,
-            videoHeight,
-            x,
-            y,
-            videoWidth * scale,
-            videoHeight * scale
-          );
-        }, 1000 / 60);
+    },
+    success(stream) {
+      this.video = document.createElement("video");
+      this.video.srcObject = stream;
+      this.video.onloadedmetadata = (e) => {
+        this.video.play();
+        this.sendVideoImage();
       };
-    }
-
-    function error(error) {
+    },
+    error(error) {
       that.$message.error("访问用户媒体失败");
-    }
+    },
+    sendVideoImage() {
+      const width = this.imgWidth;
+      const height = this.imgHeight;
+      const { videoWidth, videoHeight } = this.video;
+      const scale = Math.max(width / videoWidth, height / videoHeight);
+      const x = (width - videoWidth * scale) / 2;
+      const y = (height - videoHeight * scale) / 2;
+
+      if (this.clothes.file) {
+        this.ctxImage.drawImage(
+          this.video,
+          0,
+          0,
+          videoWidth,
+          videoHeight,
+          x,
+          y,
+          videoWidth * scale,
+          videoHeight * scale
+        );
+        const fr = new FileReader();
+        fr.readAsDataURL(this.clothes.file);
+        fr.onload = (e) => {
+          setTimeout(() => {
+            this.$ws.send(
+              `0$${this.canvasImage.toDataURL("image/png")}$${e.target.result}`
+            );
+          }, 1000);
+        };
+      } else {
+        this.ctx.drawImage(
+          this.video,
+          0,
+          0,
+          videoWidth,
+          videoHeight,
+          x,
+          y,
+          videoWidth * scale,
+          videoHeight * scale
+        );
+        setTimeout(() => {
+          this.sendVideoImage();
+        }, 1000 / 24);
+      }
+    },
+  },
+  components: {
+    UploadPhoto,
+    ImageWithMethod,
+  },
+  mounted() {
+    this.$nextTick(() => {
+      this.init();
+    });
   },
   beforeDestroy() {
-    clearInterval(timer);
-    video.srcObject?.getTracks()[0].stop();
+    this.video.srcObject?.getTracks()[0].stop();
   },
   created() {
     this.$bus.$on("uploadPhoto", (type, obj) => {
       this.clothes = obj[0];
     });
+    this.$ws.addEventListener("message", this.receiveImage);
+  },
+  beforeDestroy() {
+    this.$ws.removeEventListener("message", this.receiveImage);
   },
 };
 </script>
@@ -233,7 +284,6 @@ export default {
     align-items: center;
     justify-content: space-between;
     /deep/ & > .image-method-box {
-      
       box-shadow: @box-shadow-light;
       .normal img {
         object-fit: cover !important;
@@ -304,6 +354,7 @@ export default {
         .swiper-slide {
           height: 100%;
           width: 100%;
+          transform: rotateY(180deg);
           img {
             width: 100%;
             height: 100%;
@@ -319,7 +370,7 @@ export default {
 
     /deep/ .upload-demo {
       width: 100%;
-      height: 360px;
+      height: 500px;
       .item {
         height: 100%;
         div {

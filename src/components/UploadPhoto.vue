@@ -107,7 +107,6 @@ import ImageWithMethod from "@/components/ImageWithMethod";
 export default {
   data() {
     return {
-      disabled: false,
       isUpload: false,
       searchText: "",
       dialogImageUrl: "",
