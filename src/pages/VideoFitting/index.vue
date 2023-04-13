@@ -246,6 +246,7 @@ export default {
     this.$ws.addEventListener("message", this.receiveImage);
   },
   beforeDestroy() {
+    this.video.srcObject?.getTracks()[0].stop();
     this.$ws.removeEventListener("message", this.receiveImage);
   },
 };
