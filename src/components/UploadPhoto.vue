@@ -14,7 +14,7 @@
         list-type="picture-card"
         :auto-upload="false"
         drag
-        accept="image/*"
+        accept="image/*,video/*"
         ref="upload"
         :on-change="handleChange"
         :on-success="handleSuccess"
@@ -114,13 +114,14 @@ export default {
       typeName: {
         clothes: "衣服图片",
         person: "人物图片",
+        video: "人像视频",
       },
       files: [],
     };
   },
   computed: {
     backgroundStyle() {
-      const path = require(`@/assets/clothes_${Math.round(Math.random())}.png`)
+      const path = require(`@/assets/clothes_${Math.round(Math.random())}.png`);
       return {
         background: `url(${path}) no-repeat center center`,
         backgroundSize: "cover",
@@ -165,6 +166,10 @@ export default {
       this.files = this.multiple
         ? this.$refs.upload.uploadFiles
         : this.$refs.upload.uploadFiles.slice(0, 1);
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      canvas.width = 768;
+      canvas.height = 1024;
       this.$bus.$emit(
         "uploadPhoto",
         this.type,
@@ -178,15 +183,17 @@ export default {
       this.isUpload = true;
     },
     handleSuccess(response) {
-      this.$message({
-        message: "上传成功",
-        type: "success",
+      this.$notify.success({
+        title: "上传成功",
+        dangerouslyUseHTMLString: true,
+        message: "上传图片<strong><i>成功</i></strong>",
       });
     },
     handleError(error) {
-      this.$message({
-        message: "上传失败",
-        type: "error",
+      this.$notify.error({
+        title: "上传失败",
+        dangerouslyUseHTMLString: true,
+        message: "上传图片<strong><i>失败</i></strong>",
       });
     },
     handleRefresh() {
@@ -197,9 +204,11 @@ export default {
     },
     search() {
       if (!this.searchText.trim() || !/^http/.test(this.searchText.trim())) {
-        this.$message({
-          message: "链接为空或不合法",
-          type: "error",
+        this.$notify.warning({
+          title: "链接不合法",
+          dangerouslyUseHTMLString: true,
+          message:
+            "链接为<strong><i>空白</strong></i>或链接<strong><i>不是一个可以访问的链接</strong></i>",
         });
         return;
       }
@@ -232,9 +241,10 @@ export default {
           this.handleChange();
         })
         .catch((err) => {
-          this.$message({
+          this.$notify.error({
+            title: "访问图片失效",
+            dangerouslyUseHTMLString: true,
             message: err.message,
-            type: "error",
           });
         });
     },
@@ -421,6 +431,17 @@ export default {
       border-radius: @margin;
       position: absolute;
       z-index: 1;
+      &-thumbnail {
+        .el-image__error {
+          position: relative;
+          &::before {
+            content: "视频已展示在左边";
+            display: block;
+            position: absolute;
+            background: #f5f7fa;
+          }
+        }
+      }
       div {
         width: 100%;
         height: 100%;

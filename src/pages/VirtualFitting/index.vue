@@ -15,6 +15,37 @@
         class="virtual-fitting-photo-upload"
         :disabled="isloading"
       />
+      <div class="virtual-fitting-photo-choose">
+        <h3>身高</h3>
+        <el-input-number
+          v-model="height"
+          @change="handleChange"
+          :min="0"
+          label="height"
+          :disabled="!filelist.person.file"
+        ></el-input-number>
+        <h3>体重</h3>
+        <el-input-number
+          v-model="weight"
+          @change="handleChange"
+          :min="0"
+          label="weight"
+          :disabled="!filelist.person.file"
+        ></el-input-number>
+        <h3>试穿尺码</h3>
+        <el-select
+          placeholder="请选择您要试穿的尺码数"
+          v-model="sizeVal"
+          :disabled="!filelist.person.file"
+        >
+          <el-option
+            v-for="item in size"
+            :key="item"
+            :label="item"
+            :value="item"
+          ></el-option>
+        </el-select>
+      </div>
       <el-progress
         class="virtual-fitting-photo-progress"
         ref="progress"
@@ -43,7 +74,7 @@
       <el-carousel
         v-if="typeof createImage !== 'string' && createImage.length !== 1"
         :initial-index="0"
-        height="500px"
+        height="600px"
         width="80%"
       >
         <el-carousel-item v-for="(item, index) in createImage" :key="index">
@@ -90,6 +121,10 @@ export default {
       },
       dialogVisible: false,
       index: 1,
+      height: 0,
+      weight: 0,
+      size: ["S", "M", "L", "XL", "XXL", "XXXL", "XXXXL"],
+      sizeVal: "",
       text: "",
       createImage: "",
       isBarrage: false,
@@ -241,17 +276,18 @@ export default {
       return `${val.toFixed(2)}%`;
     },
     Upload() {
-      if (this.isUpload) return this.$message.error("正在上传中，请稍后");
-      if (this.isloading) return this.$message.error("正在生成中，请稍后");
+      if (this.isUpload)
+        return this.$notify.error({ title: "正在上传中，请稍后" });
+      if (this.isloading)
+        return this.$notify.error({ title: "正在生成中，请稍后" });
       this.isUpload = true;
       this.$confirm("确定上传图片吗？")
         .then(() => {
           this.submitUpload();
         })
         .catch(() => {
-          this.$message({
-            type: "info",
-            message: "已取消上传",
+          this.$notify.info({
+            title: "已取消上传",
           });
         })
         .finally(() => {
@@ -271,10 +307,16 @@ export default {
     async submitUpload() {
       const { filelist } = this;
       if (!filelist.person.file) {
-        this.$message.error("请上传人物图片（仅允许一张）");
+        this.$notify.error({
+          title: "人物图片缺失",
+          message: "请上传人物图片（仅允许一张）",
+        });
         return;
       } else if (!filelist.clothes.length) {
-        this.$message.error("请上传至少一张衣服图片");
+        this.$notify.error({
+          title: "衣服图片缺失",
+          title: "请上传至少一张衣服图片",
+        });
         return;
       }
 
@@ -300,7 +342,7 @@ export default {
       this.createImage = [];
       this.$ws.send("1$" + files.join("$"));
       this.timer = setInterval(() => {
-        this.progress += Math.random() > 0.5 ? Math.random() : 0;
+        this.progress += Math.random()*2 ;
         if (this.progress >= 98 + Math.random()) {
           clearInterval(this.timer);
         }
@@ -323,7 +365,10 @@ export default {
           );
         }
       } catch (err) {
-        this.$message.warning("历史记录达到上限！已替换距今最早的图片！");
+        this.$notify.warning({
+          title: "历史记录达到上限",
+          message: "已替换最远的记录",
+        });
         let history = JSON.parse(localStorage.getItem("history"));
         let item = history.pop();
         while (JSON.stringify(item).length < length) {
@@ -352,16 +397,28 @@ export default {
       }, 1000);
       this.isloading = false;
     },
+    getRandom(min, max) {
+      return Math.floor(Math.random() * (max - min + 1) + min);
+    },
   },
   mounted() {
     this.$bus.$on("uploadPhoto", (type, obj) => {
       if (!type) return;
-      if (type === "person") this.filelist.person = obj[0];
-      else this.filelist[type] = obj;
+      if (type === "person") {
+        this.filelist.person = obj[0];
+        this.height = this.getRandom(158, 180);
+        this.weight = this.getRandom(80, 120);
+        let index = Math.round(
+          (this.height - 165) / 5 + (this.weight - 100) / 20
+        );
+        this.sizeVal = this.size[index];
+      } else {
+        this.filelist[type] = obj;
+      }
     });
   },
   created() {
-    this.$ws.addEventListener("message",this.receiveImage);
+    this.$ws.addEventListener("message", this.receiveImage);
   },
   beforeDestroy() {
     clearInterval(this.timer);
@@ -402,6 +459,13 @@ export default {
       &:last-child:not(:first-child) {
         margin-left: @margin;
       }
+    }
+    &-choose {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-evenly;
+      align-items: center;
+      text-align: center;
     }
     &-progress {
       cursor: pointer;
@@ -475,14 +539,13 @@ export default {
   @media screen and (max-width: 768px) {
     height: initial;
     &-photo {
-      height: 868px;
+      height: 1440px;
       &-upload {
         &:last-child:not(:first-child) {
           margin-top: @margin;
           margin-left: 0;
         }
       }
-
       flex-direction: column;
     }
   }

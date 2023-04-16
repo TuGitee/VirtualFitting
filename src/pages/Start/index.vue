@@ -3,10 +3,11 @@
     <div class="main-title">
       <div class="main-title-text">
         <h4 class="main-title-text-en">Virtual Fitting.</h4>
-        <h1 class="main-title-text-cn">云裳</h1>
-        <h6 class="main-title-text-subtitle">
+        <h1 class="main-title-text-cn">虚拟试衣</h1>
+        <h1 class="main-title-text-cn">算法</h1>
+        <!-- <h6 class="main-title-text-subtitle">
           ——基于计算机视觉的多功能虚拟试衣
-        </h6>
+        </h6> -->
         <p class="main-title-text-note">
           虚拟试衣应用是一种基于计算机视觉技术的应用程序，通过使用摄像头或上传照片的方式，让用户可以在线上试穿服装。用户可以选择上传自己的不同姿态的照片以及不同的衣服款式、颜色和尺码，在应用程序中查看自己穿上衣服的效果。
         </p>
@@ -34,6 +35,8 @@ export default {
   position: relative;
   display: flex;
 
+  
+
   &::after {
     content: "";
     height: 100vh;
@@ -47,7 +50,7 @@ export default {
   }
 
   &-title {
-    margin: @margin calc(@margin * 3);
+    margin: 3vh 5vh;
     text-align: left;
     height: fit-content;
     width: fit-content;
@@ -83,9 +86,9 @@ export default {
           21px 10.5px 0px #0220c7aa, 22px 11px 0px #0220c7ab,
           23px 11.5px 0px #0220c7ac, 24px 12px 0px #0220c7ad,
           25px 12.5px 0px #0220c7ae, 26px 13px 0px #0220c7af;
-        font-size: 200px;
+        font-size: 20vh;
         margin-top: @margin;
-        line-height: 1;
+        line-height: 1.1;
       }
 
       &-en {
@@ -99,30 +102,30 @@ export default {
           3.5px 3.5px 0px #0220c7b2, 4px 4px 0px #0220c7c3,
           4.5px 4.5px 0px #0220c7d4, 5px 5px 0px #0220c7e5;
         color: @white;
-        font-size: 50px;
+        font-size: 6vh;
       }
 
       &-subtitle {
-        margin-top: calc(@margin * 2);
+        margin-top: 5vh;
         text-indent: 2em;
         font-weight: 700;
         text-align: right;
-         letter-spacing: 5px;
-         color: @white;
-         text-shadow: 0.5px 0.5px 0px #0220c700, 1px 1px 0px #0220c722,
+        letter-spacing: 5px;
+        color: @white;
+        text-shadow: 0.5px 0.5px 0px #0220c700, 1px 1px 0px #0220c722,
           1.5px 1.5px 0px #0220c744, 2px 2px 0px #0220c766,
           2.5px 2.5px 0px #0220c788, 3px 3px 0px #0220c7a0,
           3.5px 3.5px 0px #0220c7b2, 4px 4px 0px #0220c7c3,
           4.5px 4.5px 0px #0220c7d4, 5px 5px 0px #0220c7e5;
-          font-size: 30px;
+        font-size: 4vh;
       }
 
       &-note {
-        margin-top: calc(@margin * 2);
+        margin-top: 4vh;
         text-indent: 2em;
         white-space: break-spaces;
         color: grey;
-        font-size: 16px;
+        font-size: 2vh;
         position: relative;
       }
 
@@ -131,7 +134,7 @@ export default {
         font-weight: 900;
         text-shadow: 5px 5px 0px #0220c7;
         color: @white;
-        font-size: 20px;
+        font-size: 3vh;
         border: none;
         outline: none;
         background: @black;
@@ -139,7 +142,7 @@ export default {
         line-height: 1;
         padding: @margin;
         border-radius: 999px;
-        margin-top: 20px;
+        margin-top: 4vh;
         transition: all 0.5s;
         &:hover {
           box-shadow: @box-shadow;
@@ -154,6 +157,20 @@ export default {
         }
         100% {
           filter: blur(0px);
+        }
+      }
+    }
+  }
+
+  @media screen and (max-width: 768px) {
+    height: fit-content;
+    &-title {
+      margin: 0;
+      white-space: pre-line;
+      max-width: 100%;
+      &-text {
+        &-cn {
+          letter-spacing: 20px;
         }
       }
     }

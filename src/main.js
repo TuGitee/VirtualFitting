@@ -5,8 +5,8 @@ import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 Vue.use(ElementUI)
 
-import { Message } from 'element-ui'
-Vue.prototype.$message = Message
+import { Notification } from 'element-ui'
+Vue.prototype.$notify = Notification
 
 import router from '@/router'
 

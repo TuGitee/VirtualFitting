@@ -1,5 +1,8 @@
 <template>
   <el-container id="app" direction="vertical">
+    <transition name="el-fade-in-linear">
+      <div v-show="isDay" class="mask"></div>
+    </transition>
     <canvas id="stars">版本浏览器过低，请使用chrome浏览器！</canvas>
     <HeaderBar class="header-bar" v-if="$router.currentRoute.meta.isShow" />
     <router-view />
@@ -10,17 +13,30 @@
 import HeaderBar from "./components/HeaderBar.vue";
 export default {
   name: "App",
+  data() {
+    return {
+      isDay: false,
+    };
+  },
   components: {
     HeaderBar,
   },
   mounted() {
+    this.$bus.$on('day',(val)=>{
+      this.isDay = val
+    })
+
     this.$ws.onopen = (evt) => {
       console.log("Connection establied!");
       // 发送post请求开始训练模型
-      this.$axios.post("");
+      this.$axios.post(`http://127.0.0.1:8000/api`);
     };
     this.$ws.onerror = (evt) => {
-      this.$message.error("连接失败");
+      this.$notify.error({
+        title: "连接失败",
+        dangerouslyUseHTMLString: true,
+        message: "WebSocket服务连接<strong><i>失败</i></strong>",
+      });
     };
 
     function straightLine(ctx, fromX, fromY, toX, toY, color, width) {
@@ -108,7 +124,8 @@ export default {
   }
 
   .el-dialog {
-    margin-top: 10vh !important;
+    margin-top: 5vh !important;
+    width: 30% !important;
 
     @media screen and (max-width: 768px) {
       width: 80% !important;
@@ -134,12 +151,14 @@ export default {
     }
   }
 }
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+
   #stars {
     position: absolute;
     display: block;
@@ -147,19 +166,17 @@ export default {
     z-index: -9;
   }
 
-  // 黑色模式
-  // &::before {
-  //   content: "";
-  //   height: 100vh;
-  //   width: 100vw;
-  //   position: fixed;
-  //   top: 0;
-  //   left: 0;
-  //   z-index: -99;
-  //   mix-blend-mode: difference;
-  //   background-color: #fff;
-  //   pointer-events: none;
-  // }
+  .mask {
+    height: 100vh;
+    width: 100vw;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -999;
+    mix-blend-mode: difference;
+    background-color: #fff;
+    pointer-events: none;
+  }
 }
 
 @media screen and (max-width: 768px) {

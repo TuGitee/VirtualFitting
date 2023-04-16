@@ -85,7 +85,7 @@ export default {
         spaceBetween: 10,
         observer: true,
         observeParents: true,
-        slidesPerView: 4,
+        slidesPerView: 3,
         touchRatio: 0.1,
         slideToClickedSlide: true,
         autoplay: {
@@ -181,9 +181,11 @@ export default {
 
 <style lang="less" scoped>
 @swiper-width: 300px;
+@side-width: 200px;
 .main {
   box-sizing: border-box;
   display: flex;
+  padding-left: @side-width;
 
   &::after {
     content: "";
@@ -223,7 +225,7 @@ export default {
       }
     }
     /deep/ &.el-collapse {
-      width: calc(100% - @swiper-width - @margin);
+      width: calc(100% - @swiper-width - @margin - @side-width);
       border: none;
       .el-collapse-item {
         height: fit-content;
@@ -319,10 +321,13 @@ export default {
 
   .swiper {
     width: @swiper-width;
+    padding: @margin;
+    background-color: @background;
+    border-radius: @margin;
     margin: 0 0 0 @margin !important;
-    height: calc(100% - @margin * 2) !important;
+    height: calc(100vh - @margin * 1.5 - @nav-height) !important;
     position: fixed;
-    right: @margin;
+    right: calc(@margin + @side-width);
     &.gallery-thumbs {
       margin-top: 10px;
       .swiper-slide {

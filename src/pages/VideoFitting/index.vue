@@ -1,20 +1,6 @@
 <template>
   <el-main class="video-fitting main">
     <div class="video-fitting-pre">
-      <ImageWithMethod :src="preImg" :options="{ isDownload: true }" />
-      <b>上一次拍摄的图片</b>
-    </div>
-
-    <div class="video-fitting-video">
-      <div class="video-fitting-video-canvas">
-        <canvas id="try-on"></canvas>
-      </div>
-      <el-button @click="snap" class="video-fitting-video-button">
-        <i class="el-icon-camera-solid"></i>
-      </el-button>
-    </div>
-
-    <div class="video-fitting-side">
       <swiper
         class="swiper gallery-thumbs"
         :options="swiperOptionThumbs"
@@ -35,7 +21,23 @@
           />
         </swiper-slide>
       </swiper>
-      <UploadPhoto type="clothes" :style="snapList.length ? '' : 'flex:1'" />
+      <ImageWithMethod :src="preImg" :options="{ isDownload: true }" />
+      <b>上一次拍摄的图片</b>
+    </div>
+
+    <div class="video-fitting-video">
+      <div class="video-fitting-video-canvas">
+        <canvas id="try-on"></canvas>
+        <!-- <video src="@/assets/video.mp4" autoplay></video> -->
+      </div>
+      <el-button @click="snap" class="video-fitting-video-button">
+        <i class="el-icon-camera-solid"></i>
+      </el-button>
+    </div>
+
+    <div class="video-fitting-side">
+      <UploadPhoto type="clothes" />
+      <UploadPhoto type="video" />
     </div>
   </el-main>
 </template>
@@ -51,9 +53,12 @@ export default {
       canvasImage: null,
       video: null,
       timer: null,
+      stream: null,
+      recorder: null,
       imgHeight: 1024,
       imgWidth: 768,
       preImg: "",
+      data: [],
       clothes: {},
       now: 0,
       snapList: JSON.parse(localStorage.getItem("snap")) || [],
@@ -109,7 +114,10 @@ export default {
           );
         }
       } catch (err) {
-        this.$message.warning("历史记录达到上限！已替换距今最早的图片！");
+        this.$notify.warning({
+          title: "历史记录达到上限",
+          message: "已替换最远的记录",
+        });
         let snap = JSON.parse(localStorage.getItem("snap"));
         let item = snap.pop();
         while (JSON.stringify(item).length < length) {
@@ -129,8 +137,9 @@ export default {
         let img = new Image();
         img.src = e.target.result;
         img.onload = (e) => {
-          console.log(img);
           ctx.drawImage(img, 0, 0, this.imgWidth, this.imgHeight);
+          this.video.play();
+          this.recorder.resume();
           this.sendVideoImage();
         };
       };
@@ -166,7 +175,9 @@ export default {
           this.error
         );
       } else {
-        this.$message.error("不支持摄像头！");
+        this.$notify.warning({
+          title: "您的电脑不支持使用摄像头",
+        });
       }
     },
     success(stream) {
@@ -178,7 +189,9 @@ export default {
       };
     },
     error(error) {
-      that.$message.error("访问用户媒体失败");
+      that.$notify.error({
+        title: "访问用户媒体失效",
+      });
     },
     sendVideoImage() {
       const width = this.imgWidth;
@@ -203,11 +216,11 @@ export default {
         const fr = new FileReader();
         fr.readAsDataURL(this.clothes.file);
         fr.onload = (e) => {
-          setTimeout(() => {
-            this.$ws.send(
-              `0$${this.canvasImage.toDataURL("image/png")}$${e.target.result}`
-            );
-          }, 1000);
+          this.$ws.send(
+            `0$${this.canvasImage.toDataURL("image/png")}$${e.target.result}`
+          );
+          this.recorder.pause();
+          this.video.pause();
         };
       } else {
         this.ctx.drawImage(
@@ -241,12 +254,46 @@ export default {
   },
   created() {
     this.$bus.$on("uploadPhoto", (type, obj) => {
-      this.clothes = obj[0];
+      if (type === "clothes") {
+        this.clothes = obj[0];
+      } else {
+        this.video.srcObject?.getTracks()[0].stop();
+        this.video.srcObject = null;
+        this.video.src = URL.createObjectURL(obj[0].file);
+        this.video.autoplay = true;
+        this.video.loop = false;
+
+        this.video.addEventListener("play", () => {
+          this.sendVideoImage();
+          this.canvas.style.transform = "none";
+          this.stream = this.canvas.captureStream(25);
+          this.recorder = new MediaRecorder(this.stream, {
+            mimeType: "video/webm",
+          });
+          const recordedChunks = [];
+          this.recorder.addEventListener("dataavailable", (event) => {
+            recordedChunks.push(event.data);
+            const url = URL.createObjectURL(new Blob(recordedChunks));
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = +new Date() + ".webm";
+            a.click();
+          });
+          this.video.addEventListener("ended", () => {
+            this.recorder.stop();
+            this.video.srcObject?.getTracks()[0].stop();
+            this.video.srcObject = null;
+            this.video.src = null;
+          });
+          this.recorder.start();
+        });
+      }
     });
     this.$ws.addEventListener("message", this.receiveImage);
   },
   beforeDestroy() {
     this.video.srcObject?.getTracks()[0].stop();
+    this.video.pause();
     this.$ws.removeEventListener("message", this.receiveImage);
   },
 };
@@ -257,9 +304,9 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: @margin;
+  margin: @margin auto;
   height: calc(100vh - @margin * 2 - @nav-height);
-  width: calc(100% - @margin * 2);
+  width: min-content;
   padding: @margin;
   background-color: @background;
   border-radius: @margin;
@@ -278,12 +325,38 @@ export default {
     background-size: cover;
   }
   &-pre {
-    flex: 1;
+    width: 300px;
     height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
+    .swiper {
+      margin: 0 0 @margin 0 !important;
+      height: 100%;
+      width: 100%;
+      box-shadow: @box-shadow-light;
+      &.gallery-thumbs {
+        padding: @margin;
+        background-color: @background;
+        border-radius: @margin;
+        .swiper-slide {
+          height: 100%;
+          width: 100%;
+          transform: rotateY(180deg);
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: @margin;
+          }
+          &-active {
+            opacity: 1;
+          }
+        }
+      }
+    }
+
     /deep/ & > .image-method-box {
       box-shadow: @box-shadow-light;
       .normal img {
@@ -321,6 +394,10 @@ export default {
         border-radius: @margin;
         transform: rotateY(180deg);
       }
+      video {
+        background-color: @background;
+        border-radius: @margin;
+      }
     }
 
     &-button {
@@ -334,44 +411,16 @@ export default {
   }
 
   &-side {
-    padding-bottom: 60px;
     width: 400px;
     height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: space-between;
-    height: 100%;
-
-    .swiper {
-      margin: 0 0 @margin 0 !important;
-      height: 100%;
-      width: 100%;
-      box-shadow: @box-shadow-light;
-      &.gallery-thumbs {
-        padding: @margin;
-        background-color: @background;
-        border-radius: @margin;
-        .swiper-slide {
-          height: 100%;
-          width: 100%;
-          transform: rotateY(180deg);
-          img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: @margin;
-          }
-          &-active {
-            opacity: 1;
-          }
-        }
-      }
-    }
+    justify-content: flex-start;
+    gap: @margin;
 
     /deep/ .upload-demo {
       width: 100%;
-      height: 500px;
       .item {
         height: 100%;
         div {

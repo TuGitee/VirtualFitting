@@ -17,6 +17,16 @@
         </el-menu-item>
       </div>
       <div class="el-menu-right">
+        <el-switch
+          style="display: block"
+          v-model="isDay"
+          active-color="#000"
+          inactive-color="#fff"
+          active-icon-class="el-icon-moon-night"
+          inactive-icon-class="el-icon-sunrise"
+          @change="handleChange"
+        >
+        </el-switch>
         <el-menu-item class="give-me-money" @click="dialogVisible = true">
           <i class="el-icon-goods"></i
           ><span slot="title" class="give-me-money-word">赞赏我们吧！</span>
@@ -70,6 +80,7 @@ export default {
       navList: routes.filter((item) => item.meta.icon),
       dialogVisible: false,
       activeItem: "Alipay",
+      isDay: false,
     };
   },
   methods: {
@@ -87,6 +98,10 @@ export default {
         this.$el.style.backgroundColor = "transparent";
       }
     },
+    handleChange(val) {
+      this.isDay = val;
+      this.$bus.$emit('day', this.isDay);
+    },
   },
   mounted() {
     window.addEventListener("scroll", this.handleScroll);
@@ -95,7 +110,7 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.root {
+.header-bar {
   position: sticky;
   top: 0;
   width: 100%;
@@ -157,6 +172,34 @@ export default {
       justify-content: flex-end;
       height: 100%;
       width: 100%;
+      .el-switch {
+        margin-right: calc(@margin / 2);
+        /deep/ .el-switch__label {
+          color: #bbb;
+          &.is-active {
+            &.el-switch__label--right {
+              color: #000;
+            }
+            &.el-switch__label--left {
+              color: #fff;
+            }
+            & ~ .el-switch__core {
+              &::after {
+                background-color: #000;
+              }
+            }
+          }
+          i {
+            font-size: 20px;
+          }
+          & ~ .el-switch__core {
+            &::after {
+              background-color: #fff;
+            }
+          }
+        }
+      }
+
       .give-me-money {
         display: flex;
         justify-content: center;
