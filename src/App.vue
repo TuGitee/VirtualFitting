@@ -29,7 +29,7 @@ export default {
     this.$ws.onopen = (evt) => {
       console.log("Connection establied!");
       // 发送post请求开始训练模型
-      this.$axios.post(`http://127.0.0.1:8000/api`);
+      this.$axios.post(`https://${window.location.hostname}/api`);
     };
     this.$ws.onerror = (evt) => {
       this.$notify.error({
