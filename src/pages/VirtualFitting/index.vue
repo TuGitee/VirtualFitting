@@ -380,7 +380,7 @@ export default {
       }
     },
     receiveImage(evt) {
-      const baseURL = `/static/`;
+      const baseURL = `static/`;
       let data = evt.data;
       let url = baseURL + data;
       clearInterval(this.timer);
